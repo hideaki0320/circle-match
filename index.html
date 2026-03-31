@@ -811,6 +811,7 @@ function showResult() {
   const scored = pool.map(c => ({ ...c, matchScore: computeScore(c) }));
   scored.sort((a,b) => b.matchScore - a.matchScore);
   const top5 = scored.slice(0, 5);
+  const topScore = top5[0]?.matchScore ?? 0;
 
   showScreen('screen-result');
 
