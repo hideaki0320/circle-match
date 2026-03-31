@@ -784,17 +784,33 @@ function getPersonaType(topCircles) {
 }
 
 function showResult() {
-  // score all circles
-  const scored = CIRCLES.map(c => ({ ...c, matchScore: computeScore(c) }));
-  scored.sort((a,b) => b.matchScore - a.matchScore);
+  const hobbyData = answers[2] || { hobbies: [], cats: [], keys: [] };
+  const keys = hobbyData.keys || [];
+  const cats = hobbyData.cats || [];
 
-  // マッチするサークルのみ表示（スコア閾値: 上位スコアの70%以上）
-  const topScore = scored[0].matchScore;
-  const threshold = Math.max(55, Math.floor(topScore * 0.70));
-  const matched = scored.filter(c => c.matchScore >= threshold);
-  const top5 = matched.slice(0, 5).length >= 3
-    ? matched.slice(0, 5)
-    : scored.slice(0, 3); // フォールバック: 最低3件は表示
+  // ── 対象プールを先に絞る ──────────────────────────────────────
+  // 1st: genre_key が選択キーと完全一致するサークル
+  // 2nd: 足りなければ同カテゴリ（keys未指定カテゴリ）で補完
+  // 3rd: それでも足りなければ全件フォールバック
+  let pool = CIRCLES;
+  if (keys.length > 0) {
+    const exact = CIRCLES.filter(c => c.genre_key && keys.includes(c.genre_key));
+    if (exact.length >= 3) {
+      pool = exact;
+    } else {
+      // exact が足りない場合: 選択カテゴリ全体に広げる
+      const byCat = CIRCLES.filter(c => c.categories.some(cat => cats.includes(cat)));
+      pool = byCat.length >= 3 ? byCat : CIRCLES;
+    }
+  } else if (cats.length > 0) {
+    const byCat = CIRCLES.filter(c => c.categories.some(cat => cats.includes(cat)));
+    if (byCat.length >= 3) pool = byCat;
+  }
+  // ─────────────────────────────────────────────────────────────
+
+  const scored = pool.map(c => ({ ...c, matchScore: computeScore(c) }));
+  scored.sort((a,b) => b.matchScore - a.matchScore);
+  const top5 = scored.slice(0, 5);
 
   showScreen('screen-result');
 
