@@ -238,8 +238,8 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
     <button class="btn-secondary" onclick="showBrowse()">サークルを探す・一覧を見る</button>
   </div>
   <div class="land-stats">
-    <div class="stat"><div class="stat-num">25+</div><div class="stat-label">掲載サークル</div></div>
-    <div class="stat"><div class="stat-num">7</div><div class="stat-label">大学・対応</div></div>
+    <div class="stat"><div class="stat-num">236</div><div class="stat-label">掲載サークル</div></div>
+    <div class="stat"><div class="stat-num">早稲田</div><div class="stat-label">公認サークル</div></div>
     <div class="stat"><div class="stat-num">30秒</div><div class="stat-label">診断時間</div></div>
   </div>
 </div>
@@ -547,291 +547,20 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
   </button>
 </div>
 
+<script src="waseda_data.js"></script>
 <script>
-// ===== CIRCLE DATA =====
-const CIRCLES = [
-  {
-    id: 1, name: 'テニスサークル Sunny', university: '早稲田大学', inkare: false,
-    catchcopy: '初心者大歓迎！出会いも多い人気サークル',
-    desc: '毎週水・土曜に早稲田キャンパス近くのコートで活動。初心者から経験者まで幅広く参加。毎年の新歓やBBQイベントが好評で、出会いが多いと評判。男女比5:5でにぎやかな雰囲気。',
-    categories: ['sports'], intensity: 'middle', vibe: 'bright', size: 'large',
-    cost: 'medium', vertical: false, activity: '週2', members: '約120名',
-    tags: [{l:'テニス',c:'tag-teal'},{l:'男女比5:5',c:'tag-pink'},{l:'週2',c:'tag-gold'},{l:'新歓アクティブ',c:'tag-blue'}],
-    instagram: '@sunny_waseda', photos: ['tennis1','tennis2','tennis3'],
-    scores: {sports:9,culture:2,tech:1,social:7,outdoor:3,creative:1,game:1}
-  },
-  {
-    id: 2, name: 'フットサルサークル KICK', university: '早稲田大学', inkare: true,
-    catchcopy: 'ガチすぎず、でも熱い。フットサル好きの集まり',
-    desc: '早稲田・他大混合のインカレサークル。週2回の練習と月1の大会参加。体育会ほど縦社会でなく、フラットな関係性が魅力。サッカー経験者多めだが未経験者も歓迎。',
-    categories: ['sports'], intensity: 'middle', vibe: 'bright', size: 'large',
-    cost: 'medium', vertical: false, activity: '週2', members: '約80名',
-    tags: [{l:'フットサル',c:'tag-teal'},{l:'インカレ',c:'tag-pink'},{l:'大会あり',c:'tag-gold'}],
-    instagram: '@kick_futsal', photos: ['sport1','sport2','sport3'],
-    scores: {sports:9,culture:2,tech:1,social:6,outdoor:3,creative:1,game:1}
-  },
-  {
-    id: 3, name: 'バドミントンサークル Feather', university: 'MARCH', inkare: false,
-    catchcopy: 'のんびりやりたい人向け。週1でOK',
-    desc: '青山学院大学公認サークル。週1回の活動で初心者も気軽に参加できる。少人数でアットホームな雰囲気が特徴。費用が安く、気軽に始められると人気。',
-    categories: ['sports'], intensity: 'yuru', vibe: 'cozy', size: 'small',
-    cost: 'low', vertical: false, activity: '週1', members: '約35名',
-    tags: [{l:'バドミントン',c:'tag-teal'},{l:'週1',c:'tag-gold'},{l:'初心者歓迎',c:'tag-pink'},{l:'格安',c:'tag-blue'}],
-    instagram: '@feather_agubad', photos: ['sport4','sport5','sport6'],
-    scores: {sports:7,culture:1,tech:1,social:6,outdoor:2,creative:1,game:1}
-  },
-  {
-    id: 4, name: 'バスケサークル HOOP', university: '慶應義塾大学', inkare: false,
-    catchcopy: '慶應らしいおしゃれなバスケサークル',
-    desc: '慶應三田キャンパスを中心に活動。週3回練習の本格派だが、体育会ほど縦社会ではない。ユニフォームや練習着にこだわりがあり、見た目にもこだわるメンバーが多い。',
-    categories: ['sports'], intensity: 'gachi', vibe: 'cool', size: 'medium',
-    cost: 'medium', vertical: false, activity: '週3', members: '約60名',
-    tags: [{l:'バスケ',c:'tag-teal'},{l:'週3',c:'tag-pink'},{l:'おしゃれ系',c:'tag-purple'}],
-    instagram: '@hoop_keio', photos: ['basketball1','basketball2','basketball3'],
-    scores: {sports:10,culture:2,tech:1,social:5,outdoor:2,creative:2,game:1}
-  },
-  {
-    id: 5, name: 'ランニングサークル PACE', university: 'インカレ', inkare: true,
-    catchcopy: '一緒に走るだけ。友達ができるゆるラン',
-    desc: '複数大学合同のランニングサークル。週1回、代々木公園や皇居周辺を一緒に走るだけ。ランニング後にカフェやご飯に行くことも多く、自然と友達ができる。費用はほぼゼロ。',
-    categories: ['sports','outdoor'], intensity: 'yuru', vibe: 'bright', size: 'medium',
-    cost: 'low', vertical: false, activity: '週1', members: '約50名',
-    tags: [{l:'ランニング',c:'tag-teal'},{l:'インカレ',c:'tag-pink'},{l:'格安',c:'tag-gold'},{l:'ゆるめ',c:'tag-blue'}],
-    instagram: '@pace_running', photos: ['outdoor1','outdoor2','outdoor3'],
-    scores: {sports:7,culture:1,tech:1,social:7,outdoor:6,creative:1,game:1}
-  },
-  {
-    id: 6, name: 'ダンスサークル FLARE', university: '早稲田大学', inkare: true,
-    catchcopy: 'かっこよく踊りたい人が集まる本格派',
-    desc: '早稲田を中心とした大規模ダンスサークル。HIPHOPからK-POPまで多ジャンル対応。年2回の定期公演は毎回満員。見た目がおしゃれなメンバーが多く、出会いも多い。週2〜3回練習。',
-    categories: ['culture'], intensity: 'middle', vibe: 'cool', size: 'large',
-    cost: 'medium', vertical: false, activity: '週2〜3', members: '約200名',
-    tags: [{l:'ダンス',c:'tag-teal'},{l:'インカレ',c:'tag-pink'},{l:'定期公演',c:'tag-purple'},{l:'おしゃれ系',c:'tag-gold'}],
-    instagram: '@flare_dance_ws', photos: ['dance1','dance2','dance3'],
-    scores: {sports:5,culture:10,tech:1,social:7,outdoor:1,creative:5,game:1}
-  },
-  {
-    id: 7, name: '軽音楽サークル Sound Garden', university: '早稲田大学', inkare: false,
-    catchcopy: 'バンドやりたい人はここ。ライブが熱い',
-    desc: '早稲田最大規模の軽音楽サークル。年4回の定期ライブに加え、スタジオ練習は自由に組める。バンド未経験者向けの入門サポートあり。文化祭でも毎年大きなステージを担当。',
-    categories: ['culture'], intensity: 'middle', vibe: 'cozy', size: 'large',
-    cost: 'medium', vertical: false, activity: '週1〜2', members: '約150名',
-    tags: [{l:'音楽・バンド',c:'tag-purple'},{l:'ライブ',c:'tag-pink'},{l:'スタジオ自由',c:'tag-teal'}],
-    instagram: '@soundgarden_waseda', photos: ['music1','music2','music3'],
-    scores: {sports:1,culture:10,tech:1,social:5,outdoor:1,creative:7,game:1}
-  },
-  {
-    id: 8, name: 'アカペラサークル Harmonia', university: 'MARCH', inkare: false,
-    catchcopy: '歌声だけで感動させる。ハモリの快感を知って',
-    desc: '立教大学公認のアカペラサークル。グループを組んで歌うスタイルで、メンバー同士の絆が深い。年2回のコンサートに向けて練習。楽器不要でコストが低いのも魅力。',
-    categories: ['culture'], intensity: 'middle', vibe: 'cozy', size: 'medium',
-    cost: 'low', vertical: false, activity: '週2', members: '約60名',
-    tags: [{l:'アカペラ',c:'tag-purple'},{l:'格安',c:'tag-gold'},{l:'コンサート',c:'tag-pink'}],
-    instagram: '@harmonia_rikkyo', photos: ['music4','music5','music6'],
-    scores: {sports:1,culture:10,tech:1,social:6,outdoor:1,creative:6,game:1}
-  },
-  {
-    id: 9, name: '演劇サークル Stage Works', university: 'MARCH', inkare: false,
-    catchcopy: '脚本から舞台まで全部自分たちでつくる',
-    desc: '明治大学公認の演劇サークル。年2回の公演を完全自主制作。脚本・演出・衣装・舞台美術まで学生が担当。文系・理系問わず参加でき、表現することが好きな人が集まる。',
-    categories: ['culture','creative'], intensity: 'middle', vibe: 'cool', size: 'medium',
-    cost: 'medium', vertical: false, activity: '週2〜3', members: '約45名',
-    tags: [{l:'演劇',c:'tag-purple'},{l:'自主制作',c:'tag-pink'},{l:'ガクチカ向き',c:'tag-gold'}],
-    instagram: '@stageworks_meiji', photos: ['theater1','theater2','theater3'],
-    scores: {sports:1,culture:8,tech:2,social:5,outdoor:1,creative:10,game:1}
-  },
-  {
-    id: 10, name: '映画鑑賞サークル Cinéma', university: '早稲田大学', inkare: false,
-    catchcopy: '映画を語り合う。それだけでいい',
-    desc: '月2回の上映会と鑑賞後のディスカッションが中心。映画を作ることより「観て語る」ことに特化したサークル。人数が少なくアットホームで、映画好きが自然と集まる場所。',
-    categories: ['creative'], intensity: 'yuru', vibe: 'cozy', size: 'small',
-    cost: 'low', vertical: false, activity: '月2回', members: '約25名',
-    tags: [{l:'映画',c:'tag-purple'},{l:'少人数',c:'tag-teal'},{l:'格安',c:'tag-gold'}],
-    instagram: '@cinema_waseda', photos: ['cinema1','cinema2','cinema3'],
-    scores: {sports:1,culture:6,tech:1,social:6,outdoor:1,creative:8,game:3}
-  },
-  {
-    id: 11, name: '写真サークル Lens', university: 'インカレ', inkare: true,
-    catchcopy: 'カメラ片手に街へ。感性を磨く写真集団',
-    desc: '複数大学合同の写真サークル。月1回の撮影会（テーマあり）と年2回の写真展が活動の柱。カメラはスマホでも参加可。SNSで作品を発信するメンバーも多く、フォロワーが増えると評判。',
-    categories: ['creative'], intensity: 'yuru', vibe: 'cool', size: 'medium',
-    cost: 'low', vertical: false, activity: '月2〜4回', members: '約70名',
-    tags: [{l:'写真',c:'tag-blue'},{l:'インカレ',c:'tag-pink'},{l:'SNS映え',c:'tag-purple'}],
-    instagram: '@lens_circle_jp', photos: ['photo1','photo2','photo3'],
-    scores: {sports:1,culture:4,tech:2,social:6,outdoor:5,creative:10,game:1}
-  },
-  {
-    id: 12, name: 'イラスト・漫画サークル Inkwell', university: 'MARCH', inkare: false,
-    catchcopy: '描くことが好きな人の安心できる場所',
-    desc: '中央大学公認のイラスト・漫画サークル。週1回の集まりで各自が制作。コミケや学祭での合同誌制作も。デジタル・アナログどちらも歓迎。内輪ノリが少なく入りやすいと好評。',
-    categories: ['creative'], intensity: 'yuru', vibe: 'cozy', size: 'small',
-    cost: 'low', vertical: false, activity: '週1', members: '約30名',
-    tags: [{l:'イラスト',c:'tag-purple'},{l:'マンガ',c:'tag-pink'},{l:'コミケ参加',c:'tag-gold'}],
-    instagram: '@inkwell_chuo', photos: ['art1','art2','art3'],
-    scores: {sports:1,culture:5,tech:2,social:5,outdoor:1,creative:10,game:4}
-  },
-  {
-    id: 13, name: 'プログラミングサークル DevHub', university: '早稲田大学', inkare: false,
-    catchcopy: 'アプリをつくって世界を変えよう',
-    desc: '開発・ハッカソン参加・LT会を定期開催する本格派テックサークル。企業連携のプロジェクトにも参加でき、就活で圧倒的に強い。Python・Web・アプリ・AIなど多分野をカバー。',
-    categories: ['tech'], intensity: 'gachi', vibe: 'cool', size: 'medium',
-    cost: 'low', vertical: false, activity: '週2〜3', members: '約80名',
-    tags: [{l:'プログラミング',c:'tag-blue'},{l:'ハッカソン',c:'tag-purple'},{l:'ガクチカ最強',c:'tag-gold'}],
-    instagram: '@devhub_waseda', photos: ['tech1','tech2','tech3'],
-    scores: {sports:1,culture:1,tech:10,social:4,outdoor:1,creative:4,game:5}
-  },
-  {
-    id: 14, name: 'ビジネス研究会 Next', university: '慶應義塾大学', inkare: false,
-    catchcopy: '起業・コンサル・投資を本気で学ぶ',
-    desc: '慶應生中心のビジネス特化サークル。ケーススタディ・ビジネスコンテスト出場・OB起業家との勉強会など、就活・起業に直結する活動が充実。意識高い系が集まるが、初心者も歓迎。',
-    categories: ['tech'], intensity: 'gachi', vibe: 'cool', size: 'medium',
-    cost: 'medium', vertical: false, activity: '週2〜3', members: '約90名',
-    tags: [{l:'ビジネス',c:'tag-gold'},{l:'コンテスト',c:'tag-blue'},{l:'意識高め',c:'tag-purple'}],
-    instagram: '@next_keio_biz', photos: ['biz1','biz2','biz3'],
-    scores: {sports:1,culture:1,tech:9,social:5,outdoor:1,creative:3,game:1}
-  },
-  {
-    id: 15, name: '広告研究会 AD Lab', university: 'MARCH', inkare: false,
-    catchcopy: '実際の広告案件に関わる実践型サークル',
-    desc: '法政大学公認。企業からの広告課題に取り組む実践型サークル。コピーライティング・デザイン・マーケティングを学べる。就活でのアピールポイントとして非常に強く、OBネットワークも豊富。',
-    categories: ['tech','creative'], intensity: 'middle', vibe: 'cool', size: 'medium',
-    cost: 'low', vertical: false, activity: '週2', members: '約55名',
-    tags: [{l:'広告・マーケ',c:'tag-gold'},{l:'企業連携',c:'tag-blue'},{l:'ガクチカ',c:'tag-purple'}],
-    instagram: '@adlab_hosei', photos: ['office1','office2','office3'],
-    scores: {sports:1,culture:3,tech:7,social:4,outdoor:1,creative:7,game:1}
-  },
-  {
-    id: 16, name: '語学・国際交流サークル Globe', university: '早稲田大学', inkare: true,
-    catchcopy: '外国人留学生と毎週交流。英語力がのびる',
-    desc: '早稲田の留学生と日本人学生が混合で活動するインカレ型サークル。週1回の交流イベント（英語ゲーム・料理・文化紹介など）が中心。英語が苦手でもOK、むしろ上達できる環境。',
-    categories: ['social'], intensity: 'yuru', vibe: 'bright', size: 'large',
-    cost: 'low', vertical: false, activity: '週1', members: '約100名',
-    tags: [{l:'国際交流',c:'tag-blue'},{l:'英語',c:'tag-teal'},{l:'留学生と交流',c:'tag-pink'}],
-    instagram: '@globe_waseda', photos: ['exchange1','exchange2','exchange3'],
-    scores: {sports:2,culture:3,tech:3,social:10,outdoor:2,creative:2,game:1}
-  },
-  {
-    id: 17, name: 'ボランティアサークル Roots', university: '早稲田大学', inkare: false,
-    catchcopy: '誰かの役に立つことが、自分の力になる',
-    desc: '子どもの学習支援・地域清掃・被災地支援など多様なボランティア活動を行うサークル。活動は選択式で無理なく参加できる。就活での自己アピールはもちろん、本当にやりがいを感じられる。',
-    categories: ['social'], intensity: 'yuru', vibe: 'cozy', size: 'medium',
-    cost: 'low', vertical: false, activity: '週1〜月2', members: '約70名',
-    tags: [{l:'ボランティア',c:'tag-teal'},{l:'自由参加',c:'tag-gold'},{l:'ガクチカ',c:'tag-blue'}],
-    instagram: '@roots_volunteer_ws', photos: ['volunteer1','volunteer2','volunteer3'],
-    scores: {sports:1,culture:1,tech:2,social:10,outdoor:3,creative:2,game:1}
-  },
-  {
-    id: 18, name: 'アウトドアサークル BASE', university: 'インカレ', inkare: true,
-    catchcopy: 'キャンプ・登山・BBQ。自然の中で仲良くなる',
-    desc: '複数大学合同のアウトドアサークル。月1〜2回のキャンプや登山、夏の海BBQ、冬のスキーなど年間イベントが充実。費用は割り勘で手頃。自然の中で仲良くなれる、出会いも多め。',
-    categories: ['outdoor'], intensity: 'yuru', vibe: 'bright', size: 'large',
-    cost: 'medium', vertical: false, activity: '月2回', members: '約120名',
-    tags: [{l:'キャンプ',c:'tag-teal'},{l:'登山',c:'tag-gold'},{l:'インカレ',c:'tag-pink'},{l:'出会い多め',c:'tag-blue'}],
-    instagram: '@base_outdoor_circle', photos: ['outdoor4','outdoor5','outdoor6'],
-    scores: {sports:4,culture:1,tech:1,social:8,outdoor:10,creative:1,game:1}
-  },
-  {
-    id: 19, name: '旅行サークル Journey', university: '早稲田大学', inkare: false,
-    catchcopy: '国内も海外も。旅好きが集まるゆるいサークル',
-    desc: '年2〜3回の国内旅行合宿と年1回の海外旅行（有志参加）が目玉。旅行の企画・手配をメンバーが担当するので段取り力もつく。旅行に行かない時期はゆるく飲み会・ランチ会。',
-    categories: ['outdoor','social'], intensity: 'yuru', vibe: 'bright', size: 'medium',
-    cost: 'medium', vertical: false, activity: '月1〜2回', members: '約65名',
-    tags: [{l:'旅行',c:'tag-gold'},{l:'国内・海外',c:'tag-teal'},{l:'ゆるめ',c:'tag-blue'}],
-    instagram: '@journey_waseda', photos: ['outdoor7','outdoor8','outdoor9'],
-    scores: {sports:2,culture:2,tech:1,social:8,outdoor:9,creative:1,game:1}
-  },
-  {
-    id: 20, name: 'カフェ巡りサークル Roast', university: 'インカレ', inkare: true,
-    catchcopy: '毎週違うカフェへ。それだけで友達ができる',
-    desc: '複数大学合同のゆるいライフスタイルサークル。毎週末に都内のおしゃれカフェやローカル喫茶をみんなで訪問。SNS映えを狙う写真も撮れる。新しいメンバーが毎月入るので友達が増えやすい。',
-    categories: ['social'], intensity: 'yuru', vibe: 'cozy', size: 'medium',
-    cost: 'low', vertical: false, activity: '週1', members: '約55名',
-    tags: [{l:'カフェ巡り',c:'tag-pink'},{l:'インカレ',c:'tag-teal'},{l:'SNS映え',c:'tag-purple'}],
-    instagram: '@roast_cafe_circle', photos: ['cafe1','cafe2','cafe3'],
-    scores: {sports:1,culture:2,tech:1,social:9,outdoor:4,creative:4,game:1}
-  },
-  {
-    id: 21, name: '料理サークル Kitchen+', university: 'MARCH', inkare: false,
-    catchcopy: 'みんなで作って食べるだけ。距離が縮まる',
-    desc: '青山学院大学の料理サークル。週1回、学内調理室でみんなで料理して食べるだけ。テーマは「日本料理」「イタリアン」「お菓子」など持ち回りで決める。自然と会話が生まれて仲良くなれる。',
-    categories: ['social'], intensity: 'yuru', vibe: 'cozy', size: 'small',
-    cost: 'low', vertical: false, activity: '週1', members: '約30名',
-    tags: [{l:'料理',c:'tag-gold'},{l:'少人数',c:'tag-teal'},{l:'格安',c:'tag-pink'}],
-    instagram: '@kitchenplus_aoyama', photos: ['food1','food2','food3'],
-    scores: {sports:1,culture:2,tech:1,social:9,outdoor:2,creative:3,game:1}
-  },
-  {
-    id: 22, name: 'BBQ・旅行イベントサークル LINK', university: 'インカレ', inkare: true,
-    catchcopy: '年間イベント多め。常に出会いがある場所',
-    desc: 'BBQ・花火・スキー・海など年間10以上のイベントを開催するインカレサークル。参加は基本自由で、気が向いたイベントだけ来るスタイル。メンバー入れ替わりが多く、常に新しい出会いがある。',
-    categories: ['social','outdoor'], intensity: 'yuru', vibe: 'bright', size: 'large',
-    cost: 'medium', vertical: false, activity: '月1〜2イベント', members: '約180名',
-    tags: [{l:'イベント中心',c:'tag-pink'},{l:'インカレ',c:'tag-teal'},{l:'出会い多め',c:'tag-gold'}],
-    instagram: '@link_events_circle', photos: ['party1','party2','party3'],
-    scores: {sports:3,culture:2,tech:1,social:10,outdoor:6,creative:1,game:1}
-  },
-  {
-    id: 23, name: 'ボードゲームサークル Tabletop', university: '早稲田大学', inkare: false,
-    catchcopy: '頭使う系エンタメが好きな人の居場所',
-    desc: '週1回、学内で人狼・カタン・ワードウルフなどボードゲームをやるだけのゆるいサークル。ゲーム系は好きだけどゲーセンや飲み会はちょっと…という人に人気。内輪感がなく入りやすい。',
-    categories: ['game'], intensity: 'yuru', vibe: 'cozy', size: 'small',
-    cost: 'low', vertical: false, activity: '週1', members: '約35名',
-    tags: [{l:'ボードゲーム',c:'tag-purple'},{l:'人狼',c:'tag-blue'},{l:'格安',c:'tag-gold'}],
-    instagram: '@tabletop_waseda', photos: ['board1','board2','board3'],
-    scores: {sports:1,culture:1,tech:4,social:7,outdoor:1,creative:2,game:10}
-  },
-  {
-    id: 24, name: 'eスポーツサークル GG', university: '慶應義塾大学', inkare: true,
-    catchcopy: 'VALORANT・LoL・Apex。ガチも歓迎',
-    desc: '慶應を中心としたeスポーツサークル。チーム制で大会参加する「競技班」と、わいわいやる「カジュアル班」に分かれているので、ゆるい人もガチな人も参加できる。',
-    categories: ['game','tech'], intensity: 'middle', vibe: 'cool', size: 'medium',
-    cost: 'low', vertical: false, activity: '週2〜3', members: '約70名',
-    tags: [{l:'eスポーツ',c:'tag-purple'},{l:'VALORANT',c:'tag-blue'},{l:'大会あり',c:'tag-pink'}],
-    instagram: '@gg_esports_keio', photos: ['game1','game2','game3'],
-    scores: {sports:3,culture:1,tech:7,social:5,outdoor:1,creative:2,game:10}
-  },
-  {
-    id: 25, name: 'ディベート研究会 Argue+', university: '国公立大学', inkare: false,
-    catchcopy: '論理的思考力を鍛えたいなら絶対ここ',
-    desc: '東大・一橋・東工大生中心のディベートサークル。週2回の練習と月1回の大会参加。英語ディベート・日本語ディベート双方対応。口下手でも論理力がつくと就活生からも人気。',
-    categories: ['tech','social'], intensity: 'gachi', vibe: 'cool', size: 'medium',
-    cost: 'low', vertical: false, activity: '週2', members: '約50名',
-    tags: [{l:'ディベート',c:'tag-gold'},{l:'論理思考',c:'tag-blue'},{l:'英語対応',c:'tag-teal'}],
-    instagram: '@argueplus_debate', photos: ['debate1','debate2','debate3'],
-    scores: {sports:1,culture:1,tech:8,social:6,outdoor:1,creative:3,game:1}
-  }
-];
+// ===== CIRCLE DATA (早稲田実データ使用) =====
+const CIRCLES = WASEDA_CIRCLES;
 
-// picsum photo seeds mapping
+// 写真URL: 早稲田の実画像URL or picsum fallback
 const PHOTO_BASE = 'https://picsum.photos/seed/';
-const PHOTO_MAP = {
-  tennis1:'smc_t1/400/400',tennis2:'smc_t2/200/200',tennis3:'smc_t3/200/200',
-  sport1:'smc_s1/400/400',sport2:'smc_s2/200/200',sport3:'smc_s3/200/200',
-  sport4:'smc_s4/400/400',sport5:'smc_s5/200/200',sport6:'smc_s6/200/200',
-  basketball1:'smc_b1/400/400',basketball2:'smc_b2/200/200',basketball3:'smc_b3/200/200',
-  outdoor1:'smc_o1/400/400',outdoor2:'smc_o2/200/200',outdoor3:'smc_o3/200/200',
-  outdoor4:'smc_o4/400/400',outdoor5:'smc_o5/200/200',outdoor6:'smc_o6/200/200',
-  outdoor7:'smc_o7/400/400',outdoor8:'smc_o8/200/200',outdoor9:'smc_o9/200/200',
-  dance1:'smc_d1/400/400',dance2:'smc_d2/200/200',dance3:'smc_d3/200/200',
-  music1:'smc_m1/400/400',music2:'smc_m2/200/200',music3:'smc_m3/200/200',
-  music4:'smc_m4/400/400',music5:'smc_m5/200/200',music6:'smc_m6/200/200',
-  theater1:'smc_th1/400/400',theater2:'smc_th2/200/200',theater3:'smc_th3/200/200',
-  cinema1:'smc_ci1/400/400',cinema2:'smc_ci2/200/200',cinema3:'smc_ci3/200/200',
-  photo1:'smc_ph1/400/400',photo2:'smc_ph2/200/200',photo3:'smc_ph3/200/200',
-  art1:'smc_ar1/400/400',art2:'smc_ar2/200/200',art3:'smc_ar3/200/200',
-  tech1:'smc_tc1/400/400',tech2:'smc_tc2/200/200',tech3:'smc_tc3/200/200',
-  biz1:'smc_bz1/400/400',biz2:'smc_bz2/200/200',biz3:'smc_bz3/200/200',
-  office1:'smc_of1/400/400',office2:'smc_of2/200/200',office3:'smc_of3/200/200',
-  exchange1:'smc_ex1/400/400',exchange2:'smc_ex2/200/200',exchange3:'smc_ex3/200/200',
-  volunteer1:'smc_vl1/400/400',volunteer2:'smc_vl2/200/200',volunteer3:'smc_vl3/200/200',
-  cafe1:'smc_cf1/400/400',cafe2:'smc_cf2/200/200',cafe3:'smc_cf3/200/200',
-  food1:'smc_fd1/400/400',food2:'smc_fd2/200/200',food3:'smc_fd3/200/200',
-  party1:'smc_py1/400/400',party2:'smc_py2/200/200',party3:'smc_py3/200/200',
-  board1:'smc_bg1/400/400',board2:'smc_bg2/200/200',board3:'smc_bg3/200/200',
-  game1:'smc_gm1/400/400',game2:'smc_gm2/200/200',game3:'smc_gm3/200/200',
-  debate1:'smc_db1/400/400',debate2:'smc_db2/200/200',debate3:'smc_db3/200/200',
-};
-function photoUrl(key) { return PHOTO_BASE + (PHOTO_MAP[key] || key+'/400/400'); }
+function photoUrl(key) {
+  if (!key) return PHOTO_BASE + 'smc_default/400/400';
+  // 実URLの場合（https://で始まる）はそのまま返す
+  if (key.startsWith('http')) return key;
+  // picsumキー形式: "seed/WxH"
+  return PHOTO_BASE + key;
+}
 
 // ===== QUIZ STATE =====
 const answers = {};
@@ -1110,8 +839,8 @@ function filterCircles() {
       || (activeFilter === 'inkare' && c.inkare);
     const matchSearch = !q
       || c.name.toLowerCase().includes(q)
-      || c.catchcopy.toLowerCase().includes(q)
-      || c.desc.toLowerCase().includes(q)
+      || (c.catchcopy||'').toLowerCase().includes(q)
+      || (c.desc||'').toLowerCase().includes(q)
       || c.university.toLowerCase().includes(q)
       || c.tags.some(t => t.l.toLowerCase().includes(q));
     return matchFilter && matchSearch;
@@ -1163,8 +892,12 @@ function openModal(id) {
     <div class="modal-info-item"><div class="modal-info-label">メンバー数</div><div class="modal-info-value">${c.members}</div></div>
     <div class="modal-info-item"><div class="modal-info-label">コスト感</div><div class="modal-info-value">${{low:'低め（格安）',medium:'中程度',high:'高め'}[c.cost]}</div></div>
     <div class="modal-info-item"><div class="modal-info-label">ガチ度</div><div class="modal-info-value">${{gachi:'本気（週3以上）',middle:'ほどほど',yuru:'ゆるめ'}[c.intensity]}</div></div>`;
-  document.getElementById('modal-sns').innerHTML =
-    `<a class="sns-btn" href="https://instagram.com/${c.instagram.replace('@','')}" target="_blank">📸 ${c.instagram}</a>`;
+  const snsHtml = [];
+  if (c.detail_url) snsHtml.push(`<a class="sns-btn" href="${c.detail_url}" target="_blank">🔗 早稲田公式ページ</a>`);
+  if (c.instagram && !c.instagram.includes('wasedaweekly')) {
+    snsHtml.push(`<a class="sns-btn" href="https://instagram.com/${c.instagram.replace('@','')}" target="_blank">📸 ${c.instagram}</a>`);
+  }
+  document.getElementById('modal-sns').innerHTML = snsHtml.join('');
 
   document.getElementById('modal-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
