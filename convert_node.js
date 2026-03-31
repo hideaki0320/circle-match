@@ -118,6 +118,7 @@ function convertWaseda(rawList, startId = 100) {
       instagram:  snsInstagram || ("@" + c.name.replace(/[\s　]/g,"_").substring(0,20)),
       photos:     [photoKey, `smc_ws${c.id}b/200/200`, `smc_ws${c.id}c/200/200`],
       scores:     ginfo.scores,
+      genre_key:  gkey,
       waseda_id:  c.id,
       detail_url: c.detail_url || "",
       image_url:  imgUrl,
@@ -158,6 +159,7 @@ function convertMulti(rawList, startId = 400) {
       instagram:  "",
       photos:     [`${seed}/400/400`, `${seed}b/200/200`, `${seed}c/200/200`],
       scores:     ginfo.scores,
+      genre_key:  gkey,
       detail_url: c.detail_url || "",
       image_url:  "",
     };
