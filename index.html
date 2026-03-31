@@ -238,8 +238,8 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
     <button class="btn-secondary" onclick="showBrowse()">サークルを探す・一覧を見る</button>
   </div>
   <div class="land-stats">
-    <div class="stat"><div class="stat-num">236</div><div class="stat-label">掲載サークル</div></div>
-    <div class="stat"><div class="stat-num">早稲田</div><div class="stat-label">公認サークル</div></div>
+    <div class="stat"><div class="stat-num">2026</div><div class="stat-label">掲載サークル</div></div>
+    <div class="stat"><div class="stat-num">11大学</div><div class="stat-label">対応</div></div>
     <div class="stat"><div class="stat-num">30秒</div><div class="stat-label">診断時間</div></div>
   </div>
 </div>
@@ -283,19 +283,19 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
         <div class="options">
           <button class="option-btn" data-value="waseda" onclick="selectOption(this)">
             <span class="option-label">早稲田大学</span>
-            <span class="option-sub">500以上のサークルあり</span>
+            <span class="option-sub">236サークル掲載</span>
           </button>
           <button class="option-btn" data-value="keio" onclick="selectOption(this)">
             <span class="option-label">慶應義塾大学</span>
-            <span class="option-sub">インカレも充実</span>
+            <span class="option-sub">400サークル掲載</span>
           </button>
           <button class="option-btn" data-value="march" onclick="selectOption(this)">
-            <span class="option-label">MARCH・その他私立</span>
-            <span class="option-sub">明治・青山・立教・中央・法政など</span>
+            <span class="option-label">MARCH・上智・理科大</span>
+            <span class="option-sub">明治・青山・立教・中央・法政・上智・理科大</span>
           </button>
           <button class="option-btn" data-value="kokuritu" onclick="selectOption(this)">
             <span class="option-label">国公立大学</span>
-            <span class="option-sub">東大・一橋・東工大など</span>
+            <span class="option-sub">東大・一橋など</span>
           </button>
           <button class="option-btn" data-value="inkare" onclick="selectOption(this)">
             <span class="option-label">大学問わず探したい</span>
@@ -547,10 +547,10 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
   </button>
 </div>
 
-<script src="waseda_data.js"></script>
+<script src="all_circles_data.js"></script>
 <script>
 // ===== CIRCLE DATA (早稲田実データ使用) =====
-const CIRCLES = WASEDA_CIRCLES;
+const CIRCLES = ALL_CIRCLES;
 
 // 写真URL: 早稲田の実画像URL or picsum fallback
 const PHOTO_BASE = 'https://picsum.photos/seed/';
@@ -690,11 +690,14 @@ function computeScore(circle) {
   const cats       = hobbyData.cats || [];
 
   // University match (+10 or -10)
+  const MARCH_UNIVS = ['明治大学','青山学院大学','立教大学','中央大学','法政大学','上智大学','東京理科大学'];
+  const KOKURITU_UNIVS = ['一橋大学','東京大学','国公立大学'];
+  const KEIO_UNIVS = ['慶應義塾大学'];
   if(univ === 'inkare' || circle.inkare) score += 5;
   if(univ === 'waseda' && circle.university === '早稲田大学') score += 10;
   if(univ === 'keio'   && circle.university === '慶應義塾大学') score += 10;
-  if(univ === 'march'  && circle.university === 'MARCH') score += 10;
-  if(univ === 'kokuritu' && circle.university === '国公立大学') score += 10;
+  if(univ === 'march'  && MARCH_UNIVS.includes(circle.university)) score += 10;
+  if(univ === 'kokuritu' && KOKURITU_UNIVS.includes(circle.university)) score += 10;
 
   // Hobby/category match (up to 30 pts)
   let catScore = 0;
@@ -893,7 +896,7 @@ function openModal(id) {
     <div class="modal-info-item"><div class="modal-info-label">コスト感</div><div class="modal-info-value">${{low:'低め（格安）',medium:'中程度',high:'高め'}[c.cost]}</div></div>
     <div class="modal-info-item"><div class="modal-info-label">ガチ度</div><div class="modal-info-value">${{gachi:'本気（週3以上）',middle:'ほどほど',yuru:'ゆるめ'}[c.intensity]}</div></div>`;
   const snsHtml = [];
-  if (c.detail_url) snsHtml.push(`<a class="sns-btn" href="${c.detail_url}" target="_blank">🔗 早稲田公式ページ</a>`);
+  if (c.detail_url) snsHtml.push(`<a class="sns-btn" href="${c.detail_url}" target="_blank">🔗 公式ページ</a>`);
   if (c.instagram && !c.instagram.includes('wasedaweekly')) {
     snsHtml.push(`<a class="sns-btn" href="https://instagram.com/${c.instagram.replace('@','')}" target="_blank">📸 ${c.instagram}</a>`);
   }
