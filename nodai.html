@@ -213,14 +213,22 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
 .nav-icon{font-size:20px;line-height:1;}
 
 /* ===== TYPE CARD ===== */
-.type-card{background:var(--surface);border:1px solid rgba(76,175,80,0.25);border-radius:var(--radius);padding:28px 24px;margin-bottom:28px;text-align:center;animation:fadeUp .6s cubic-bezier(.34,1.56,.64,1);}
-.type-emoji{font-size:56px;margin-bottom:12px;display:block;}
+.type-card{background:var(--surface);border:1px solid rgba(76,175,80,0.25);border-radius:var(--radius);padding:28px 24px;margin-bottom:28px;animation:fadeUp .6s cubic-bezier(.34,1.56,.64,1);}
+.type-hero{text-align:center;margin-bottom:20px;}
+.type-emoji{font-size:64px;margin-bottom:12px;display:block;}
 .type-eyebrow{font-size:10px;letter-spacing:2px;color:var(--accent2);text-transform:uppercase;margin-bottom:6px;}
-.type-name{font-family:'DM Serif Display',serif;font-size:28px;margin-bottom:10px;background:linear-gradient(135deg,#4caf50,#81c784);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.type-name{font-family:'DM Serif Display',serif;font-size:30px;margin-bottom:10px;background:linear-gradient(135deg,#4caf50,#81c784);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 .type-catchcopy{font-size:14px;font-weight:500;color:var(--text);line-height:1.6;margin-bottom:12px;}
-.type-desc{font-size:12px;color:var(--muted);line-height:1.75;margin-bottom:14px;}
-.type-tags{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;}
+.type-tags{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:20px;}
 .type-tag{font-size:11px;padding:3px 12px;border-radius:99px;background:rgba(76,175,80,0.1);color:var(--accent2);border:1px solid rgba(76,175,80,0.2);}
+.type-sections{display:flex;flex-direction:column;gap:12px;}
+.type-section{background:var(--surface2);border-radius:14px;padding:14px 16px;}
+.type-section-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:5px;}
+.type-section-label.life{color:#4cc9f0;}
+.type-section-label.romance{color:#ff8fa3;}
+.type-section-label.risk{color:var(--gold);}
+.type-section-label.strength{color:var(--teal);}
+.type-section-text{font-size:13px;color:var(--text);line-height:1.75;}
 
 @media(min-width:600px){
   .modal-overlay{align-items:center;}
@@ -417,12 +425,31 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
 
     <!-- タイプカード -->
     <div class="type-card" id="type-card">
-      <span class="type-emoji" id="type-emoji"></span>
-      <div class="type-eyebrow">あなたのタイプ</div>
-      <div class="type-name" id="type-name"></div>
-      <div class="type-catchcopy" id="type-catchcopy"></div>
-      <div class="type-desc" id="type-desc"></div>
-      <div class="type-tags" id="type-tags"></div>
+      <div class="type-hero">
+        <span class="type-emoji" id="type-emoji"></span>
+        <div class="type-eyebrow">あなたのタイプ</div>
+        <div class="type-name" id="type-name"></div>
+        <div class="type-catchcopy" id="type-catchcopy"></div>
+        <div class="type-tags" id="type-tags"></div>
+      </div>
+      <div class="type-sections">
+        <div class="type-section">
+          <div class="type-section-label life">🎓 農大生活の未来像</div>
+          <div class="type-section-text" id="type-life"></div>
+        </div>
+        <div class="type-section">
+          <div class="type-section-label romance">💘 好きな異性のタイプ</div>
+          <div class="type-section-text" id="type-romance"></div>
+        </div>
+        <div class="type-section">
+          <div class="type-section-label risk">⚠️ 留年・失敗しがちなこと</div>
+          <div class="type-section-text" id="type-risk"></div>
+        </div>
+        <div class="type-section">
+          <div class="type-section-label strength">✨ あなたの強み</div>
+          <div class="type-section-text" id="type-strength"></div>
+        </div>
+      </div>
     </div>
 
     <div class="result-section-title">RECOMMENDED CIRCLES</div>
@@ -506,57 +533,81 @@ const TYPES = [
   {
     id: 'pioneer', emoji: '🪓', name: '開墾者タイプ',
     catchcopy: '誰も踏み込んでいない道を、自分で切り拓く。',
-    desc: 'ガチで打ち込める環境を求める本気派。農大の体育会系サークルで結果を出すタイプ。勝利への執念と仲間への熱さが共存している。',
     tags: ['本気系', 'スポーツ', 'チームワーク'],
+    life: '朝6時起床、朝練→授業→夕練→筋トレ→飯→即就寝。平日のスケジュールは全て部活中心に組まれており、友人の8割はサークルの仲間。合宿では誰よりも早く起きて誰よりも遅く寝る。4年間が終わった後、「大学でサークルやっといてよかった」と本気で思えるタイプ。体育会の縦のつながりで就活も意外とスムーズ。',
+    romance: '部活のマネージャー、または同じスポーツをやっている子。「応援してくれる人」より「一緒に戦える人」が刺さる。差し入れのウィダーインゼリーで心が動く。試合に勝ったとき思わずハグしてしまい、そのまま付き合うパターンが多い。',
+    risk: '試合と期末試験が重なった瞬間、迷わず試合を選ぶ。「補講あるっしょ」が口癖。気づいたら出席日数が足りなくなっており、教授に土下座しに行く羽目になる。1〜2単位足りなくて留年するパターンの典型例。',
+    strength: '一度決めたことは絶対にやり遂げる根性と、仲間を鼓舞する熱量。チームに一人いるだけで空気が変わる。社会に出てからも「あの頃の方がきつかった」と言えるメンタルが武器になる。',
     scores: { sports: 3, gachi: 3, bright: 1, skill: 2 }
   },
   {
     id: 'brewer', emoji: '🍶', name: '醸造家タイプ',
     catchcopy: 'じっくり時間をかけて、深みのある大学生活を。',
-    desc: '焦らず自分のペースで深めていくタイプ。農大の発酵・醸造文化のように、時間をかけることで本物の味が出る。文化系サークルでじっくり腕を磨く。',
     tags: ['ゆるめ', '文化系', '探究心'],
+    life: '週2〜3回のサークル活動をこよなく愛し、活動後は仲間と近くの居酒屋へ。発表会や展示会に向けてコツコツ準備する日々。派手さはないが、4年間が終わる頃には「こんなに上手くなったのか」と自分でも驚くほど成長している。農大の発酵学科並みに、時間をかけるほど味が出る。',
+    romance: '静かで趣味が深い人。「最近ハマってること何？」と聞いたとき、目を輝かせて語り始める人に一瞬で惚れる。同じサークルの先輩・後輩に自然と好意を持ちやすく、長い時間をかけてゆっくり距離を縮めるタイプ。告白は相手からされることが多い。',
+    risk: '好きな活動に熱中しすぎて、気づいたら必修科目の出席が足りていない。「あの授業、単位取れると思ってたのに…」と学期末に青ざめる。特に1年の前期、サークルの楽しさに目覚めた直後が危険。',
+    strength: '表面的な広さより、深さを追求する姿勢。長く付き合うほど魅力が増す人間で、本当に信頼できる少数の仲間が自然と集まってくる。専門的な技術・知識は就活や将来の武器になる。',
     scores: { culture: 3, creative: 2, yuru: 3, cozy: 2, skill: 2 }
   },
   {
     id: 'harvest', emoji: '🌽', name: '収穫祭タイプ',
     catchcopy: 'あなたのいるところに、人が集まる。',
-    desc: '農大最大のイベント・収穫祭のように、周りを巻き込んで盛り上げるエネルギーの塊。サークルの中心で輝くムードメーカータイプ。',
     tags: ['明るく元気', '社交的', 'ムードメーカー'],
+    life: '農大最大のイベント「収穫祭」のために生きているような4年間。LINEのグループは常に30以上、誕生日には毎年10人以上が祝ってくれる。他サークルにも顔が広く、どの飲み会にも呼ばれる。卒業式で一番たくさんの人に囲まれて写真を撮っているのがあなた。',
+    romance: '笑顔が素敵で、一緒にいると楽しい人。重い雰囲気が苦手なので、ポジティブで一緒に笑える人が理想。モテるが故に「誰にでも優しいだけでしょ」と誤解されがち。実は一途で、付き合ったら全力で大切にするタイプ。',
+    risk: '飲み会の誘いを断れない体質。「今夜だけ」が週3回になっており、気づいたら課題の提出期限が過ぎている。グループワークで自分が動かないと誰も動かないのに、飲みに行ってしまって当日焦る。',
+    strength: '初対面の人とすぐ打ち解けられるコミュ力と、場の空気を読む能力。サークルのイベント企画や集客は任せておけば安心。社会に出てから営業・企画職で本領発揮するタイプ。',
     scores: { bright: 3, friends: 3, middle: 2, sports: 1, culture: 1 }
   },
   {
     id: 'explorer', emoji: '🌿', name: '探検家タイプ',
     catchcopy: '自然と未知に引き寄せられる、農大の野生児。',
-    desc: 'キャンプ・登山・フィールドワーク…農大ならではの自然系サークルで本領発揮。教室より野外で輝くタイプ。',
     tags: ['アウトドア', '自然好き', '行動派'],
+    life: '春は山、夏は海・川、秋はキャンプ、冬はスキー。農大のフィールドワーク系サークルで全国を飛び回り、気づいたらパスポートに複数のスタンプが押されている。インスタのストーリーは常に絶景。「教室より野外で学ぶことの方が多い」が持論で、実際そうかもしれない。',
+    romance: '一緒にアウトドアを楽しめる人。「キャンプ行こう」の誘いに「いいね！」と即答してくれる人が理想。健康的でアクティブな人に惹かれる。フィールドワーク中にいつの間にか距離が縮まっているパターンが多く、「気づいたら付き合ってた」という感覚。',
+    risk: '合宿・旅行・フィールドワークで年間の1/3は大学外にいる。授業には出ているつもりだが、トータルの出席を計算してみると笑えない数字になっていることがある。「単位より思い出」は名言だが卒業できないと本末転倒。',
+    strength: '行動力とポジティブさ、そして自分の足で動いて得た実体験の豊富さ。どんな状況でも「なんとかなる」と思えるメンタルと、自然の中でのサバイバル能力。農大の農業・環境系の就職に強い。',
     scores: { outdoor: 3, experience: 3, bright: 1 }
   },
   {
     id: 'researcher', emoji: '🔬', name: '発酵研究者タイプ',
     catchcopy: 'マニアックな探究心が、農大で花開く。',
-    desc: '興味を持ったことを徹底的に掘り下げるタイプ。農大の研究気質と相性抜群。同じ趣味を持つ仲間と深くつながる。',
     tags: ['探究心', 'マニアック', 'じっくり型'],
+    life: '好きな分野への熱量が人の3倍。サークルでも「なんでこうなるんだろう？」と原理から調べ始め、いつの間にか部内一詳しくなっている。農大の研究室配属で本当の意味で輝き始め、教授に「君は筋がいい」と言われる未来が見えている。趣味の話になると止まらない。',
+    romance: '自分の話を真剣に聞いてくれる人。「それ面白いね、もっと教えて」と言ってくれる人に弱い。マニアックな趣味を「変だね」ではなく「すごいね」と言ってくれる人が運命の相手。共通の趣味がある人とはすぐ仲良くなれるが、ない人とは少し距離を感じてしまうことも。',
+    risk: '好きな研究や趣味に時間を使いすぎて、関係ない科目が疎かになる。「どうせ使わない授業」と判断した瞬間、出席しなくなる。GPA的に必要な単位を見落としがちで、3年になってから慌てて計算することになる。',
+    strength: '一度ハマった分野への圧倒的な専門性。「あの人に聞けば分かる」とサークル内外で頼られる存在になれる。就活では専門知識を武器に研究職・技術職で強さを発揮。',
     scores: { tech: 3, culture: 2, skill: 3, gachi: 1, cozy: 2 }
   },
   {
     id: 'sunshine', emoji: '☀️', name: '農場の太陽タイプ',
     catchcopy: 'あなたの笑顔が、サークルを明るく照らす。',
-    desc: '明るくフレンドリーで誰とでも仲良くなれるタイプ。スポーツも人との繋がりも両方楽しみたい。農大の仲間と充実したキャンパスライフを送る。',
     tags: ['明るい', 'フレンドリー', 'バランス型'],
+    life: 'サークル・勉強・バイト・友人関係、全部それなりにこなせる万能タイプ。突出した何かはないけど、誰からも好かれる存在。サークルの集合写真では真ん中にいることが多く、卒業アルバムを見たとき一番たくさん写り込んでいる。農大生活を「楽しかった」と心から言えるのはこのタイプ。',
+    romance: '素直でまっすぐな人。裏表がなく、一緒にいて疲れない人が理想。共通の友人から「あの二人、合いそう」と言われて紹介されるパターンが多い。自分から積極的に動くより、気づいたら自然と仲良くなっていてそのまま付き合う流れが多め。',
+    risk: '「まあ何とかなるでしょ」という楽観主義が時に裏目に出る。バランスよくこなせるぶん、どれも中途半端になる時期が来る。卒論の提出期限だけは絶対に確認しておくこと。あと就活を「なんとかなる」と後回しにしがち。',
+    strength: '誰とでもうまくやれる柔軟性と、場を和ませる自然な明るさ。「いてくれるだけで安心する」と言われる存在。どんな職種でも人間関係で得をするタイプ。',
     scores: { sports: 2, bright: 3, friends: 2, yuru: 2, middle: 1 }
   },
   {
     id: 'sower', emoji: '🌱', name: '種まきタイプ',
     catchcopy: '今日蒔いた種が、社会を変える芽になる。',
-    desc: 'ボランティア・国際交流・社会貢献…農大の力を使って世界をよくしたいタイプ。行動力と熱意で周りを動かす。',
     tags: ['社会貢献', '行動力', '国際系'],
+    life: '農大の「食と農」の力で社会をよくしたいという熱量を持って入学。ボランティア・国際交流・模擬国連・フードロス活動…気づいたらサークルを3つ掛け持ちしている。SNSで活動報告を発信し、「農大にこんな学生いるの？」と話題になることも。将来はNGOか農業系ベンチャーか官僚か、とにかく「社会のために」動き続ける。',
+    romance: '価値観が合う人。「なんで生きてるの？」という問いに対してちゃんと答えられる人に惹かれる。社会問題に興味がある人、一緒に何かを変えようとしている人が理想。居酒屋で世界の話を語り合える人と付き合いたい。恋愛も「一緒に何かを成し遂げたい」という感覚が大事。',
+    risk: '活動への情熱が強すぎて、単位を後回しにする。「この活動の方が絶対に大事だから」という正論で自分を正当化し、気づいたら必修を落としている。燃え尽き症候群にもなりやすく、2年次の後半が要注意。',
+    strength: '誰よりも強い「なぜ」という問いと、それを実現しようとする行動力。周りを巻き込む熱量と、大義のために動ける誠実さ。就活では「学生時代に一番頑張ったこと」が他の人とは全然違うエピソードになる。',
     scores: { social: 3, volunteer: 2, experience: 2, bright: 1, middle: 1 }
   },
   {
     id: 'satoyama', emoji: '🏡', name: '里山タイプ',
     catchcopy: 'ほっとできる居場所を、農大に見つける。',
-    desc: '競争より共存、スピードよりゆったり。アットホームなサークルで居心地のいい関係を築くタイプ。農大の温かいコミュニティで心が育まれる。',
     tags: ['アットホーム', 'ゆるめ', '居心地重視'],
+    life: 'アットホームなサークルの居心地のよさを愛し、気づいたら4年間同じメンバーとずっといる。派手な大学生活ではないけれど、「あの時間が一番好きだった」と卒業後に思えるような、静かで豊かな日々を過ごす。農大のキャンパスをゆったり歩きながら、四季の変化を誰より楽しんでいる。',
+    romance: '一緒にいて疲れない、優しくて落ち着いた人。話題が尽きても沈黙が苦じゃない人が理想。「ねえ今何してる？」よりも「今日も一日お疲れ」と送ってくれる人に弱い。長い時間をかけてじっくり関係を育て、大学時代の恋人とそのまま結婚するパターンが一番多いタイプ。',
+    risk: '「まあいいか」「明日でいっか」が口癖。気づいたら小テストが積み重なって単位が危うくなっている。ストレスを感じると全部後回しにする癖があり、3年次の就活準備が遅れがち。居心地の良さを優先するあまり、変化や挑戦を避けてしまうことも。',
+    strength: '人を癒す存在感と、じっくり関係を育てる誠実さ。「あの人といると落ち着く」と言われる存在で、サークルの精神的支柱になることが多い。長く付き合える友人を作れる能力は、社会に出てからも大きな財産になる。',
     scores: { yuru: 3, cozy: 3, relax: 3, culture: 1 }
   },
 ];
@@ -788,8 +839,11 @@ function showResult() {
   document.getElementById('type-emoji').textContent = type.emoji;
   document.getElementById('type-name').textContent = type.name;
   document.getElementById('type-catchcopy').textContent = type.catchcopy;
-  document.getElementById('type-desc').textContent = type.desc;
   document.getElementById('type-tags').innerHTML = type.tags.map(t => `<span class="type-tag">${t}</span>`).join('');
+  document.getElementById('type-life').textContent = type.life;
+  document.getElementById('type-romance').textContent = type.romance;
+  document.getElementById('type-risk').textContent = type.risk;
+  document.getElementById('type-strength').textContent = type.strength;
 
   showScreen('screen-result');
   setNav('nav-quiz');
