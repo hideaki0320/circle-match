@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>農大サークルマッチ — 東京農業大学</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0d12;
+  --surface: #16161e;
+  --surface2: #1e1e2a;
+  --surface3: #252535;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.13);
+  --accent: #4caf50;
+  --accent2: #81c784;
+  --gold: #ffd166;
+  --teal: #06d6a0;
+  --blue: #4cc9f0;
+  --purple: #a78bfa;
+  --green: #4caf50;
+  --text: #f0edf6;
+  --muted: rgba(240,237,246,0.45);
+  --muted2: rgba(240,237,246,0.25);
+  --radius: 20px;
+  --radius-sm: 12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;min-height:100vh;overflow-x:hidden;}
+.blob{position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(80px);}
+.blob-1{width:500px;height:500px;top:-150px;left:-150px;background:radial-gradient(circle,rgba(76,175,80,0.12),transparent 70%);}
+.blob-2{width:600px;height:600px;bottom:-200px;right:-200px;background:radial-gradient(circle,rgba(6,214,160,0.08),transparent 70%);}
+.blob-3{width:400px;height:400px;top:40%;left:50%;background:radial-gradient(circle,rgba(76,201,240,0.06),transparent 70%);}
+
+.screen{display:none;position:relative;z-index:1;}
+.screen.active{display:block;}
+
+/* ===== LANDING ===== */
+#screen-landing{min-height:100vh;display:none;flex-direction:column;align-items:center;justify-content:center;padding:48px 20px 60px;}
+#screen-landing.active{display:flex;}
+.land-logo{font-family:'DM Serif Display',serif;font-size:36px;background:linear-gradient(135deg,#4caf50,#81c784);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px;}
+.land-univ{font-size:12px;color:var(--accent2);letter-spacing:2px;margin-bottom:6px;font-weight:500;}
+.land-sub{font-size:11px;color:var(--muted);letter-spacing:2px;margin-bottom:40px;}
+.land-hero{text-align:center;max-width:360px;margin-bottom:48px;}
+.land-headline{font-size:26px;font-weight:700;line-height:1.4;margin-bottom:12px;}
+.land-headline span{color:var(--accent2);}
+.land-body{font-size:13px;color:var(--muted);line-height:1.8;}
+.land-cta{width:100%;max-width:360px;display:flex;flex-direction:column;gap:10px;}
+.btn-primary{width:100%;height:54px;border-radius:14px;background:linear-gradient(135deg,#4caf50,#388e3c);border:none;color:#fff;font-family:'Noto Sans JP',sans-serif;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 8px 24px rgba(76,175,80,0.3);transition:transform .2s,box-shadow .2s;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(76,175,80,0.4);}
+.btn-secondary{width:100%;height:54px;border-radius:14px;background:transparent;border:1.5px solid var(--border2);color:var(--text);font-family:'Noto Sans JP',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:border-color .2s,background .2s;}
+.btn-secondary:hover{border-color:rgba(255,255,255,0.25);background:var(--surface);}
+.land-stats{display:flex;gap:28px;justify-content:center;margin-top:40px;}
+.stat{text-align:center;}
+.stat-num{font-family:'DM Serif Display',serif;font-size:28px;background:linear-gradient(135deg,#4caf50,#81c784);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.stat-label{font-size:11px;color:var(--muted);margin-top:2px;}
+
+/* ===== QUIZ ===== */
+#screen-quiz{min-height:100vh;display:none;flex-direction:column;align-items:center;padding:32px 16px 60px;}
+#screen-quiz.active{display:flex;}
+.quiz-wrap{width:100%;max-width:440px;}
+.quiz-logo{text-align:center;margin-bottom:24px;}
+.quiz-logo-title{font-family:'DM Serif Display',serif;font-size:22px;background:linear-gradient(135deg,#4caf50,#81c784);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.quiz-logo-sub{font-size:10px;color:var(--muted);letter-spacing:1px;margin-top:2px;}
+.progress-wrap{display:flex;align-items:center;gap:8px;margin-bottom:20px;}
+.progress-bar{flex:1;height:3px;background:var(--border);border-radius:99px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,#4caf50,#81c784);border-radius:99px;transition:width .5s cubic-bezier(.34,1.56,.64,1);}
+.progress-text{font-size:12px;color:var(--muted);min-width:36px;text-align:right;}
+.question-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px 24px 24px;display:none;flex-direction:column;animation:cardIn .4s cubic-bezier(.34,1.56,.64,1);}
+.question-card.active{display:flex;}
+@keyframes cardIn{from{opacity:0;transform:scale(.94) translateY(14px);}to{opacity:1;transform:scale(1) translateY(0);}}
+.card-tag{display:inline-block;font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent2);background:rgba(76,175,80,0.1);border:1px solid rgba(76,175,80,0.2);padding:3px 10px;border-radius:99px;margin-bottom:14px;align-self:flex-start;}
+.card-question{font-size:19px;font-weight:700;line-height:1.45;margin-bottom:6px;}
+.card-hint{font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.6;}
+.options{display:flex;flex-direction:column;gap:8px;}
+.option-btn{background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;padding:13px 16px;color:var(--text);font-family:'Noto Sans JP',sans-serif;font-size:13px;text-align:left;cursor:pointer;transition:border-color .2s,transform .15s,box-shadow .2s;display:flex;flex-direction:column;gap:2px;}
+.option-btn:hover{border-color:rgba(76,175,80,0.4);transform:translateY(-1px);box-shadow:0 6px 20px rgba(76,175,80,0.1);}
+.option-btn.selected{border-color:var(--accent);background:rgba(76,175,80,0.08);box-shadow:0 0 0 1px var(--accent);}
+.option-label{font-weight:500;font-size:13px;}
+.option-sub{font-size:11px;color:var(--muted);}
+
+/* hobby tags */
+.hobby-section{display:flex;flex-direction:column;gap:16px;}
+.genre-label{font-size:10px;font-weight:500;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:8px;display:block;}
+.tag-grid{display:flex;flex-wrap:wrap;gap:7px;}
+.hobby-tag{background:var(--surface2);border:1.5px solid var(--border);border-radius:99px;padding:7px 15px;color:var(--text);font-family:'Noto Sans JP',sans-serif;font-size:12px;cursor:pointer;transition:border-color .18s,background .18s,transform .12s;user-select:none;}
+.hobby-tag:hover{border-color:rgba(76,175,80,0.45);transform:translateY(-1px);}
+.hobby-tag.selected{border-color:var(--accent);background:rgba(76,175,80,0.12);color:var(--accent2);font-weight:500;}
+.hobby-count{font-size:11px;color:var(--accent2);margin-top:10px;min-height:16px;text-align:right;}
+
+/* nav */
+.quiz-nav{display:flex;gap:10px;align-items:center;margin-top:14px;}
+.btn-back{width:48px;height:48px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .2s,color .2s;flex-shrink:0;font-family:inherit;}
+.btn-back:hover{border-color:rgba(255,255,255,0.2);color:var(--text);}
+.btn-back:disabled{opacity:.25;cursor:not-allowed;}
+.btn-next{flex:1;height:48px;border-radius:12px;background:linear-gradient(135deg,#4caf50,#388e3c);border:none;color:#fff;font-family:'Noto Sans JP',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:transform .2s,box-shadow .2s,opacity .2s;box-shadow:0 6px 20px rgba(76,175,80,0.28);}
+.btn-next:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 28px rgba(76,175,80,0.38);}
+.btn-next:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none;}
+
+/* ===== RESULTS ===== */
+#screen-result{min-height:100vh;display:none;flex-direction:column;align-items:center;padding:32px 16px 80px;}
+#screen-result.active{display:flex;}
+.result-wrap{width:100%;max-width:440px;}
+.result-header{text-align:center;margin-bottom:28px;animation:fadeUp .55s cubic-bezier(.34,1.56,.64,1);}
+.result-eyebrow{font-size:11px;letter-spacing:2px;color:var(--accent2);text-transform:uppercase;margin-bottom:8px;}
+.result-type{font-family:'DM Serif Display',serif;font-size:26px;margin-bottom:12px;line-height:1.3;}
+.match-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,209,102,0.08);border:1px solid rgba(255,209,102,0.25);border-radius:99px;padding:5px 16px;font-size:12px;color:var(--gold);font-weight:700;}
+.result-section-title{font-size:12px;font-weight:500;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:14px;}
+.circle-list{display:flex;flex-direction:column;gap:16px;margin-bottom:24px;}
+.circle-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:border-color .2s,transform .2s;animation:fadeUp .5s cubic-bezier(.34,1.56,.64,1) both;}
+.circle-card:nth-child(1){animation-delay:.05s;}
+.circle-card:nth-child(2){animation-delay:.12s;}
+.circle-card:nth-child(3){animation-delay:.19s;}
+.circle-card:nth-child(4){animation-delay:.26s;}
+.circle-card:nth-child(5){animation-delay:.33s;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px) scale(.97);}to{opacity:1;transform:translateY(0) scale(1);}}
+.circle-card:hover{border-color:rgba(76,175,80,0.35);transform:translateY(-2px);}
+.circle-thumb{height:120px;overflow:hidden;background:var(--surface2);display:flex;align-items:center;justify-content:center;}
+.circle-thumb-emoji{font-size:48px;}
+.circle-body{padding:14px 16px;}
+.circle-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.circle-rank{font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;flex-shrink:0;}
+.rank-1{background:rgba(255,209,102,0.15);color:var(--gold);border:1px solid rgba(255,209,102,0.3);}
+.rank-2{background:rgba(240,237,246,0.07);color:var(--muted);border:1px solid rgba(255,255,255,0.1);}
+.rank-3{background:rgba(205,127,50,0.1);color:#cd7f32;border:1px solid rgba(205,127,50,0.25);}
+.rank-4,.rank-5{background:rgba(76,175,80,0.08);color:var(--accent2);border:1px solid rgba(76,175,80,0.2);}
+.circle-name{font-size:14px;font-weight:700;}
+.circle-cat{font-size:11px;color:var(--muted);}
+.circle-tags-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;}
+.tag{font-size:10px;padding:2px 8px;border-radius:99px;font-weight:500;}
+.tag-pink{background:rgba(255,77,109,0.1);color:#ff8fa3;border:1px solid rgba(255,77,109,0.18);}
+.tag-teal{background:rgba(6,214,160,0.08);color:var(--teal);border:1px solid rgba(6,214,160,0.18);}
+.tag-gold{background:rgba(255,209,102,0.08);color:var(--gold);border:1px solid rgba(255,209,102,0.18);}
+.tag-blue{background:rgba(76,201,240,0.08);color:var(--blue);border:1px solid rgba(76,201,240,0.18);}
+.tag-purple{background:rgba(167,139,250,0.08);color:var(--purple);border:1px solid rgba(167,139,250,0.18);}
+.tag-green{background:rgba(76,175,80,0.1);color:var(--accent2);border:1px solid rgba(76,175,80,0.2);}
+.circle-desc{font-size:12px;color:var(--muted);line-height:1.65;margin-bottom:10px;}
+.circle-match-row{display:flex;align-items:center;gap:8px;}
+.match-bar{flex:1;height:3px;background:var(--border);border-radius:99px;overflow:hidden;}
+.match-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#4caf50,#81c784);}
+.match-pct{font-size:11px;color:var(--accent2);font-weight:700;min-width:30px;text-align:right;}
+.deco-line{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:20px 0;}
+.result-actions{display:flex;flex-direction:column;gap:10px;}
+.btn-ghost{width:100%;height:48px;border-radius:12px;background:var(--surface2);border:1.5px solid var(--border);color:var(--text);font-family:'Noto Sans JP',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:border-color .2s,background .2s;}
+.btn-ghost:hover{border-color:var(--border2);background:var(--surface);}
+
+/* share buttons */
+.share-section{margin-top:20px;}
+.share-label{font-size:11px;color:var(--muted);text-align:center;margin-bottom:10px;letter-spacing:1px;}
+.share-btns{display:flex;gap:8px;}
+.share-btn{flex:1;height:44px;border-radius:12px;border:none;font-family:'Noto Sans JP',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:opacity .2s,transform .2s;text-decoration:none;}
+.share-btn:hover{opacity:.85;transform:translateY(-1px);}
+.share-twitter{background:#1d9bf0;color:#fff;}
+.share-line{background:#06c755;color:#fff;}
+.share-copy{background:var(--surface2);border:1.5px solid var(--border)!important;color:var(--text);}
+
+/* ===== BROWSE ===== */
+#screen-browse{min-height:100vh;display:none;flex-direction:column;align-items:center;padding:32px 16px 80px;}
+#screen-browse.active{display:flex;}
+.browse-wrap{width:100%;max-width:800px;}
+.browse-header{display:flex;align-items:center;gap:12px;margin-bottom:24px;}
+.browse-back{width:40px;height:40px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;font-family:inherit;transition:border-color .2s,color .2s;flex-shrink:0;}
+.browse-back:hover{border-color:var(--border2);color:var(--text);}
+.browse-title{font-family:'DM Serif Display',serif;font-size:22px;background:linear-gradient(135deg,#4caf50,#81c784);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.search-bar{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:12px 16px;color:var(--text);font-family:'Noto Sans JP',sans-serif;font-size:14px;outline:none;transition:border-color .2s;margin-bottom:16px;}
+.search-bar::placeholder{color:var(--muted);}
+.search-bar:focus{border-color:rgba(76,175,80,0.4);}
+.filter-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;}
+.filter-chip{background:var(--surface2);border:1.5px solid var(--border);border-radius:99px;padding:6px 14px;font-family:'Noto Sans JP',sans-serif;font-size:12px;color:var(--muted);cursor:pointer;transition:border-color .18s,color .18s,background .18s;white-space:nowrap;}
+.filter-chip:hover{border-color:rgba(76,175,80,0.35);color:var(--text);}
+.filter-chip.active{border-color:var(--accent);background:rgba(76,175,80,0.1);color:var(--accent2);}
+.browse-count{font-size:12px;color:var(--muted);margin-bottom:12px;}
+.browse-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;}
+.browse-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:border-color .2s,transform .2s;}
+.browse-card:hover{border-color:rgba(76,175,80,0.3);transform:translateY(-2px);}
+.browse-thumb{height:100px;overflow:hidden;background:var(--surface2);display:flex;align-items:center;justify-content:center;}
+.browse-thumb-emoji{font-size:36px;}
+.browse-body{padding:12px 14px;}
+.browse-name{font-size:13px;font-weight:700;margin-bottom:4px;}
+.browse-cat{font-size:11px;color:var(--muted);margin-bottom:6px;}
+.browse-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;}
+.browse-desc{font-size:11px;color:var(--muted);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.no-results{text-align:center;padding:60px 20px;color:var(--muted);}
+.no-results-icon{font-size:40px;margin-bottom:12px;}
+
+/* modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:100;display:none;align-items:flex-end;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;animation:slideUp .35s cubic-bezier(.34,1.56,.64,1);}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.modal-content{padding:24px 20px 40px;}
+.modal-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;}
+.modal-name{font-size:18px;font-weight:700;line-height:1.3;}
+.modal-close{width:32px;height:32px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;font-family:inherit;flex-shrink:0;transition:border-color .2s,color .2s;}
+.modal-close:hover{border-color:var(--border2);color:var(--text);}
+.modal-cat{font-size:12px;color:var(--muted);margin-bottom:10px;}
+.modal-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px;}
+.modal-desc{font-size:13px;color:var(--muted);line-height:1.75;margin-bottom:18px;}
+.modal-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;}
+.modal-info-item{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;}
+.modal-info-label{font-size:10px;color:var(--muted);margin-bottom:3px;letter-spacing:.5px;}
+.modal-info-value{font-size:13px;font-weight:500;}
+.modal-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--accent2);background:rgba(76,175,80,0.1);border:1px solid rgba(76,175,80,0.2);border-radius:99px;padding:8px 18px;cursor:pointer;text-decoration:none;transition:background .2s;}
+.modal-link:hover{background:rgba(76,175,80,0.18);}
+
+/* bottom nav */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:50;background:rgba(13,13,18,.92);backdrop-filter:blur(12px);border-top:1px solid var(--border);display:none;justify-content:center;gap:0;}
+.bottom-nav.visible{display:flex;}
+.nav-item{flex:1;max-width:120px;padding:10px 0 14px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;border:none;background:none;color:var(--muted);font-family:'Noto Sans JP',sans-serif;font-size:10px;transition:color .2s;}
+.nav-item.active{color:var(--accent2);}
+.nav-item:hover{color:var(--text);}
+.nav-icon{font-size:20px;line-height:1;}
+
+/* ===== TYPE CARD ===== */
+.type-card{background:var(--surface);border:1px solid rgba(76,175,80,0.25);border-radius:var(--radius);padding:28px 24px;margin-bottom:28px;text-align:center;animation:fadeUp .6s cubic-bezier(.34,1.56,.64,1);}
+.type-emoji{font-size:56px;margin-bottom:12px;display:block;}
+.type-eyebrow{font-size:10px;letter-spacing:2px;color:var(--accent2);text-transform:uppercase;margin-bottom:6px;}
+.type-name{font-family:'DM Serif Display',serif;font-size:28px;margin-bottom:10px;background:linear-gradient(135deg,#4caf50,#81c784);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.type-catchcopy{font-size:14px;font-weight:500;color:var(--text);line-height:1.6;margin-bottom:12px;}
+.type-desc{font-size:12px;color:var(--muted);line-height:1.75;margin-bottom:14px;}
+.type-tags{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;}
+.type-tag{font-size:11px;padding:3px 12px;border-radius:99px;background:rgba(76,175,80,0.1);color:var(--accent2);border:1px solid rgba(76,175,80,0.2);}
+
+@media(min-width:600px){
+  .modal-overlay{align-items:center;}
+  .modal{border-radius:24px;max-height:80vh;}
+}
+</style>
+</head>
+<body>
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+<div class="blob blob-3"></div>
+
+<!-- LANDING -->
+<div id="screen-landing" class="screen active">
+  <div class="land-logo">農大サークルマッチ</div>
+  <div class="land-univ">東京農業大学</div>
+  <div class="land-sub">FIND YOUR CIRCLE</div>
+  <div class="land-hero">
+    <div class="land-headline">農大で<span>運命のサークル</span>を<br>見つけよう</div>
+    <div class="land-body">4つの質問に答えるだけ。<br>あなたにぴったりの農大サークルをマッチング。</div>
+  </div>
+  <div class="land-cta">
+    <button class="btn-primary" onclick="startQuiz()">診断スタート（無料）</button>
+    <button class="btn-secondary" onclick="showBrowse()">サークル一覧を見る</button>
+  </div>
+  <div class="land-stats">
+    <div class="stat"><div class="stat-num">127</div><div class="stat-label">掲載サークル</div></div>
+    <div class="stat"><div class="stat-num">30秒</div><div class="stat-label">診断時間</div></div>
+    <div class="stat"><div class="stat-num">農大</div><div class="stat-label">世田谷キャンパス</div></div>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="screen-quiz" class="screen">
+  <div class="quiz-wrap">
+    <div class="quiz-logo">
+      <div class="quiz-logo-title">農大サークルマッチ</div>
+      <div class="quiz-logo-sub">東京農業大学</div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:25%"></div></div>
+      <div class="progress-text" id="progress-text">1 / 4</div>
+    </div>
+    <div id="quiz-cards">
+
+      <!-- Q1: 趣味・興味 -->
+      <div class="question-card active" data-q="0">
+        <span class="card-tag">趣味・興味</span>
+        <div class="card-question">どんな活動に興味がある？</div>
+        <div class="card-hint">当てはまるものを全部タップ（複数OK）</div>
+        <div class="hobby-section">
+          <div>
+            <span class="genre-label">🏃 スポーツ</span>
+            <div class="tag-grid">
+              <button class="hobby-tag" data-cat="sports" data-key="baseball" onclick="toggleHobby(this)">野球</button>
+              <button class="hobby-tag" data-cat="sports" data-key="soccer" onclick="toggleHobby(this)">サッカー</button>
+              <button class="hobby-tag" data-cat="sports" data-key="basketball" onclick="toggleHobby(this)">バスケ</button>
+              <button class="hobby-tag" data-cat="sports" data-key="tennis" onclick="toggleHobby(this)">テニス</button>
+              <button class="hobby-tag" data-cat="sports" data-key="volleyball" onclick="toggleHobby(this)">バレー</button>
+              <button class="hobby-tag" data-cat="sports" data-key="badminton" onclick="toggleHobby(this)">バドミントン・卓球</button>
+              <button class="hobby-tag" data-cat="sports" data-key="martial-arts" onclick="toggleHobby(this)">武道・格闘技</button>
+              <button class="hobby-tag" data-cat="sports" data-key="swimming" onclick="toggleHobby(this)">水泳・ダイビング</button>
+              <button class="hobby-tag" data-cat="sports" data-key="golf" onclick="toggleHobby(this)">ゴルフ</button>
+              <button class="hobby-tag" data-cat="sports" data-key="skiing" onclick="toggleHobby(this)">スキー・スノボ</button>
+              <button class="hobby-tag" data-cat="sports" data-key="sports" onclick="toggleHobby(this)">その他スポーツ</button>
+            </div>
+          </div>
+          <div>
+            <span class="genre-label">🎵 文化・芸術</span>
+            <div class="tag-grid">
+              <button class="hobby-tag" data-cat="culture" data-key="music" onclick="toggleHobby(this)">音楽・バンド</button>
+              <button class="hobby-tag" data-cat="culture" data-key="dance" onclick="toggleHobby(this)">ダンス</button>
+              <button class="hobby-tag" data-cat="culture" data-key="theater" onclick="toggleHobby(this)">演劇・落語</button>
+              <button class="hobby-tag" data-cat="creative" data-key="fine-art" onclick="toggleHobby(this)">美術・陶芸・書道</button>
+              <button class="hobby-tag" data-cat="creative" data-key="cinema" onclick="toggleHobby(this)">写真・映像・アニメ</button>
+              <button class="hobby-tag" data-cat="culture" data-key="culture" onclick="toggleHobby(this)">茶道・華道・食文化</button>
+            </div>
+          </div>
+          <div>
+            <span class="genre-label">🌿 アウトドア・自然</span>
+            <div class="tag-grid">
+              <button class="hobby-tag" data-cat="outdoor" data-key="outdoor" onclick="toggleHobby(this)">アウトドア・キャンプ</button>
+              <button class="hobby-tag" data-cat="outdoor" data-key="outdoor" onclick="toggleHobby(this)">自然・動植物観察</button>
+              <button class="hobby-tag" data-cat="outdoor" data-key="outdoor" onclick="toggleHobby(this)">釣り・農業体験</button>
+            </div>
+          </div>
+          <div>
+            <span class="genre-label">🌐 社会・交流</span>
+            <div class="tag-grid">
+              <button class="hobby-tag" data-cat="social" data-key="international-exchange" onclick="toggleHobby(this)">国際交流・模擬国連</button>
+              <button class="hobby-tag" data-cat="social" data-key="volunteer" onclick="toggleHobby(this)">ボランティア・社会貢献</button>
+              <button class="hobby-tag" data-cat="social" data-key="language" onclick="toggleHobby(this)">語学・英語・手話</button>
+              <button class="hobby-tag" data-cat="culture" data-key="game" onclick="toggleHobby(this)">ゲーム・将棋・囲碁</button>
+              <button class="hobby-tag" data-cat="tech" data-key="technology" onclick="toggleHobby(this)">テクノロジー・鉄道</button>
+            </div>
+          </div>
+        </div>
+        <div class="hobby-count" id="hobby-count"></div>
+        <div class="quiz-nav">
+          <button class="btn-back" disabled onclick="goBack()">←</button>
+          <button class="btn-next" id="btn-next-0" onclick="goNext(0)">次へ</button>
+        </div>
+      </div>
+
+      <!-- Q2: 活動ペース -->
+      <div class="question-card" data-q="1">
+        <span class="card-tag">活動スタイル</span>
+        <div class="card-question">サークルの活動ペースは？</div>
+        <div class="card-hint">理想のイメージを選んでください</div>
+        <div class="options">
+          <button class="option-btn" data-value="gachi" onclick="selectOption(this)">
+            <span class="option-label">🔥 本気でやりたい</span>
+            <span class="option-sub">週3以上、大会・コンクール出場も視野に</span>
+          </button>
+          <button class="option-btn" data-value="middle" onclick="selectOption(this)">
+            <span class="option-label">⚡ 適度に楽しみたい</span>
+            <span class="option-sub">週1〜2、楽しみながらも上達したい</span>
+          </button>
+          <button class="option-btn" data-value="yuru" onclick="selectOption(this)">
+            <span class="option-label">🌱 ゆるく楽しみたい</span>
+            <span class="option-sub">来れる時だけ、自分のペースで</span>
+          </button>
+        </div>
+        <div class="quiz-nav">
+          <button class="btn-back" onclick="goBack()">←</button>
+          <button class="btn-next" id="btn-next-1" disabled onclick="goNext(1)">次へ</button>
+        </div>
+      </div>
+
+      <!-- Q3: 雰囲気 -->
+      <div class="question-card" data-q="2">
+        <span class="card-tag">雰囲気</span>
+        <div class="card-question">どんな雰囲気のサークルが好き？</div>
+        <div class="card-hint">最も近い雰囲気を選んでください</div>
+        <div class="options">
+          <button class="option-btn" data-value="bright" onclick="selectOption(this)">
+            <span class="option-label">☀️ 明るく元気</span>
+            <span class="option-sub">賑やか・フレンドリー・どんどん友達が増える</span>
+          </button>
+          <button class="option-btn" data-value="cool" onclick="selectOption(this)">
+            <span class="option-label">✨ クールで洗練</span>
+            <span class="option-sub">個性的・センスが光る・やりたいことに集中</span>
+          </button>
+          <button class="option-btn" data-value="cozy" onclick="selectOption(this)">
+            <span class="option-label">🌿 アットホーム</span>
+            <span class="option-sub">アットホーム・居心地がいい・じっくり関係を築く</span>
+          </button>
+        </div>
+        <div class="quiz-nav">
+          <button class="btn-back" onclick="goBack()">←</button>
+          <button class="btn-next" id="btn-next-2" disabled onclick="goNext(2)">次へ</button>
+        </div>
+      </div>
+
+      <!-- Q4: 目的 -->
+      <div class="question-card" data-q="3">
+        <span class="card-tag">目的</span>
+        <div class="card-question">サークルに求めるものは？</div>
+        <div class="card-hint">最も近いものを選んでください</div>
+        <div class="options">
+          <button class="option-btn" data-value="friends" onclick="selectOption(this)">
+            <span class="option-label">👫 友達・人脈を広げたい</span>
+            <span class="option-sub">農大での仲間づくりを最優先したい</span>
+          </button>
+          <button class="option-btn" data-value="skill" onclick="selectOption(this)">
+            <span class="option-label">💪 スキルアップしたい</span>
+            <span class="option-sub">技術・知識・表現力を伸ばしたい</span>
+          </button>
+          <button class="option-btn" data-value="experience" onclick="selectOption(this)">
+            <span class="option-label">🌱 新しい体験がしたい</span>
+            <span class="option-sub">大学でしかできない体験・挑戦をしたい</span>
+          </button>
+          <button class="option-btn" data-value="relax" onclick="selectOption(this)">
+            <span class="option-label">☕ 気分転換・息抜きしたい</span>
+            <span class="option-sub">勉強の合間にリフレッシュできる居場所が欲しい</span>
+          </button>
+        </div>
+        <div class="quiz-nav">
+          <button class="btn-back" onclick="goBack()">←</button>
+          <button class="btn-next" id="btn-next-3" disabled onclick="showResult()">結果を見る 🌿</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div id="screen-result" class="screen">
+  <div class="result-wrap">
+    <div class="result-header" style="margin-bottom:16px;">
+      <div class="result-eyebrow">DIAGNOSIS RESULT</div>
+    </div>
+
+    <!-- タイプカード -->
+    <div class="type-card" id="type-card">
+      <span class="type-emoji" id="type-emoji"></span>
+      <div class="type-eyebrow">あなたのタイプ</div>
+      <div class="type-name" id="type-name"></div>
+      <div class="type-catchcopy" id="type-catchcopy"></div>
+      <div class="type-desc" id="type-desc"></div>
+      <div class="type-tags" id="type-tags"></div>
+    </div>
+
+    <div class="result-section-title">RECOMMENDED CIRCLES</div>
+    <div class="circle-list" id="circle-list"></div>
+    <div class="deco-line"></div>
+
+    <!-- シェアセクション -->
+    <div class="share-section">
+      <div class="share-label">SHARE YOUR RESULT</div>
+      <div class="share-btns">
+        <button class="share-btn share-twitter" onclick="shareTwitter()">𝕏 ポスト</button>
+        <button class="share-btn share-line" onclick="shareLine()">LINE</button>
+        <button class="share-btn share-copy btn-ghost" onclick="copyResult()">🔗 コピー</button>
+      </div>
+    </div>
+
+    <div class="deco-line"></div>
+    <div class="result-actions">
+      <button class="btn-ghost" onclick="startQuiz()">もう一度診断する</button>
+      <button class="btn-ghost" onclick="showBrowse()">全サークル一覧を見る</button>
+      <button class="btn-ghost" onclick="showScreen('screen-landing')">トップに戻る</button>
+    </div>
+  </div>
+</div>
+
+<!-- BROWSE -->
+<div id="screen-browse" class="screen">
+  <div class="browse-wrap">
+    <div class="browse-header">
+      <button class="browse-back" onclick="showScreen('screen-landing')">←</button>
+      <div class="browse-title">農大サークル一覧</div>
+    </div>
+    <input class="search-bar" type="text" placeholder="サークル名・キーワードで検索..." oninput="filterBrowse()" id="browse-search">
+    <div class="filter-row" id="filter-row"></div>
+    <div class="browse-count" id="browse-count"></div>
+    <div class="browse-grid" id="browse-grid"></div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <div class="modal-top">
+        <div class="modal-name" id="modal-name"></div>
+        <button class="modal-close" onclick="closeModal()">×</button>
+      </div>
+      <div class="modal-cat" id="modal-cat"></div>
+      <div class="modal-tags" id="modal-tags"></div>
+      <div class="modal-desc" id="modal-desc"></div>
+      <div class="modal-info-grid" id="modal-info"></div>
+      <div id="modal-link-wrap"></div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav" id="bottom-nav">
+  <button class="nav-item active" id="nav-home" onclick="showScreen('screen-landing');setNav('nav-home')">
+    <span class="nav-icon">🏠</span><span>ホーム</span>
+  </button>
+  <button class="nav-item" id="nav-quiz" onclick="startQuiz();setNav('nav-quiz')">
+    <span class="nav-icon">🌿</span><span>診断</span>
+  </button>
+  <button class="nav-item" id="nav-browse" onclick="showBrowse();setNav('nav-browse')">
+    <span class="nav-icon">🔍</span><span>一覧</span>
+  </button>
+</div>
+
+<script src="nodai_circles_data.js"></script>
+<script>
+const CIRCLES = NODAI_CIRCLES;
+const TOTAL_Q = 4;
+let currentQ = 0;
+let answers = {};
+const selectedHobbies = new Set();
+const selectedCats = new Set();
+const selectedKeys = new Set();
+
+const TYPES = [
+  {
+    id: 'pioneer', emoji: '🪓', name: '開墾者タイプ',
+    catchcopy: '誰も踏み込んでいない道を、自分で切り拓く。',
+    desc: 'ガチで打ち込める環境を求める本気派。農大の体育会系サークルで結果を出すタイプ。勝利への執念と仲間への熱さが共存している。',
+    tags: ['本気系', 'スポーツ', 'チームワーク'],
+    scores: { sports: 3, gachi: 3, bright: 1, skill: 2 }
+  },
+  {
+    id: 'brewer', emoji: '🍶', name: '醸造家タイプ',
+    catchcopy: 'じっくり時間をかけて、深みのある大学生活を。',
+    desc: '焦らず自分のペースで深めていくタイプ。農大の発酵・醸造文化のように、時間をかけることで本物の味が出る。文化系サークルでじっくり腕を磨く。',
+    tags: ['ゆるめ', '文化系', '探究心'],
+    scores: { culture: 3, creative: 2, yuru: 3, cozy: 2, skill: 2 }
+  },
+  {
+    id: 'harvest', emoji: '🌽', name: '収穫祭タイプ',
+    catchcopy: 'あなたのいるところに、人が集まる。',
+    desc: '農大最大のイベント・収穫祭のように、周りを巻き込んで盛り上げるエネルギーの塊。サークルの中心で輝くムードメーカータイプ。',
+    tags: ['明るく元気', '社交的', 'ムードメーカー'],
+    scores: { bright: 3, friends: 3, middle: 2, sports: 1, culture: 1 }
+  },
+  {
+    id: 'explorer', emoji: '🌿', name: '探検家タイプ',
+    catchcopy: '自然と未知に引き寄せられる、農大の野生児。',
+    desc: 'キャンプ・登山・フィールドワーク…農大ならではの自然系サークルで本領発揮。教室より野外で輝くタイプ。',
+    tags: ['アウトドア', '自然好き', '行動派'],
+    scores: { outdoor: 3, experience: 3, bright: 1 }
+  },
+  {
+    id: 'researcher', emoji: '🔬', name: '発酵研究者タイプ',
+    catchcopy: 'マニアックな探究心が、農大で花開く。',
+    desc: '興味を持ったことを徹底的に掘り下げるタイプ。農大の研究気質と相性抜群。同じ趣味を持つ仲間と深くつながる。',
+    tags: ['探究心', 'マニアック', 'じっくり型'],
+    scores: { tech: 3, culture: 2, skill: 3, gachi: 1, cozy: 2 }
+  },
+  {
+    id: 'sunshine', emoji: '☀️', name: '農場の太陽タイプ',
+    catchcopy: 'あなたの笑顔が、サークルを明るく照らす。',
+    desc: '明るくフレンドリーで誰とでも仲良くなれるタイプ。スポーツも人との繋がりも両方楽しみたい。農大の仲間と充実したキャンパスライフを送る。',
+    tags: ['明るい', 'フレンドリー', 'バランス型'],
+    scores: { sports: 2, bright: 3, friends: 2, yuru: 2, middle: 1 }
+  },
+  {
+    id: 'sower', emoji: '🌱', name: '種まきタイプ',
+    catchcopy: '今日蒔いた種が、社会を変える芽になる。',
+    desc: 'ボランティア・国際交流・社会貢献…農大の力を使って世界をよくしたいタイプ。行動力と熱意で周りを動かす。',
+    tags: ['社会貢献', '行動力', '国際系'],
+    scores: { social: 3, volunteer: 2, experience: 2, bright: 1, middle: 1 }
+  },
+  {
+    id: 'satoyama', emoji: '🏡', name: '里山タイプ',
+    catchcopy: 'ほっとできる居場所を、農大に見つける。',
+    desc: '競争より共存、スピードよりゆったり。アットホームなサークルで居心地のいい関係を築くタイプ。農大の温かいコミュニティで心が育まれる。',
+    tags: ['アットホーム', 'ゆるめ', '居心地重視'],
+    scores: { yuru: 3, cozy: 3, relax: 3, culture: 1 }
+  },
+];
+
+let currentTypeName = '';
+
+function determineType() {
+  const cats = answers[0]?.cats || [];
+  const intensity = answers[1] || 'middle';
+  const vibe = answers[2] || 'cozy';
+  const purpose = answers[3] || 'friends';
+
+  let best = TYPES[0], bestScore = -1;
+  TYPES.forEach(type => {
+    let s = 0;
+    const sc = type.scores;
+    if (sc.sports   && cats.includes('sports'))   s += sc.sports;
+    if (sc.culture  && cats.includes('culture'))  s += sc.culture;
+    if (sc.creative && cats.includes('creative')) s += sc.creative;
+    if (sc.outdoor  && cats.includes('outdoor'))  s += sc.outdoor;
+    if (sc.social   && cats.includes('social'))   s += sc.social;
+    if (sc.tech     && cats.includes('tech'))     s += sc.tech;
+    if (sc.volunteer && cats.includes('social'))  s += sc.volunteer;
+    if (sc[intensity]) s += sc[intensity];
+    if (sc[vibe])      s += sc[vibe];
+    if (sc[purpose])   s += sc[purpose];
+    if (s > bestScore) { bestScore = s; best = type; }
+  });
+  return best;
+}
+
+const GENRE_EMOJI = {
+  baseball:'⚾', soccer:'⚽', rugby:'🏉', football:'⚽', basketball:'🏀', tennis:'🎾', volleyball:'🏐',
+  badminton:'🏸', golf:'⛳', 'martial-arts':'🥋', skiing:'⛷️', swimming:'🏊',
+  outdoor:'🌿', music:'🎵', dance:'💃', theater:'🎭', cinema:'📷',
+  'fine-art':'🎨', 'international-exchange':'🌍', volunteer:'🤝', language:'💬',
+  technology:'🔬', culture:'🍵', game:'🎮', sports:'🏃',
+};
+
+function getEmoji(circle) {
+  return GENRE_EMOJI[circle.genre_key] || '🌿';
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const nav = document.getElementById('bottom-nav');
+  nav.classList.toggle('visible', id !== 'screen-landing');
+  window.scrollTo(0,0);
+}
+
+function setNav(id) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function startQuiz() {
+  currentQ = 0;
+  answers = {};
+  selectedHobbies.clear(); selectedCats.clear(); selectedKeys.clear();
+  document.querySelectorAll('.hobby-tag').forEach(t => t.classList.remove('selected'));
+  document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelectorAll('.question-card').forEach((c,i) => {
+    c.classList.toggle('active', i === 0);
+  });
+  document.getElementById('hobby-count').textContent = '';
+  updateProgress();
+  showScreen('screen-quiz');
+  setNav('nav-quiz');
+}
+
+function updateProgress() {
+  const pct = ((currentQ + 1) / TOTAL_Q * 100).toFixed(0);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = `${currentQ+1} / ${TOTAL_Q}`;
+}
+
+function toggleHobby(btn) {
+  const cat = btn.dataset.cat;
+  const key = btn.dataset.key || '';
+  const label = btn.textContent.trim();
+  if (btn.classList.contains('selected')) {
+    btn.classList.remove('selected');
+    selectedHobbies.delete(label);
+    if (key) {
+      const still = [...document.querySelectorAll(`.hobby-tag.selected[data-key="${key}"]`)].length > 0;
+      if (!still) selectedKeys.delete(key);
+    }
+    const stillCat = [...document.querySelectorAll(`.hobby-tag.selected[data-cat="${cat}"]`)].length > 0;
+    if (!stillCat) selectedCats.delete(cat);
+  } else {
+    btn.classList.add('selected');
+    selectedHobbies.add(label);
+    selectedCats.add(cat);
+    if (key) selectedKeys.add(key);
+  }
+  const cnt = selectedHobbies.size;
+  document.getElementById('hobby-count').textContent = cnt > 0 ? `${cnt}件選択中` : '';
+}
+
+function selectOption(btn) {
+  const card = btn.closest('.question-card');
+  card.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  const q = parseInt(card.dataset.q);
+  const nextBtn = document.getElementById(`btn-next-${q}`);
+  if (nextBtn) nextBtn.disabled = false;
+}
+
+function goNext(q) {
+  if (q === 0) {
+    answers[0] = { hobbies: [...selectedHobbies], cats: [...selectedCats], keys: [...selectedKeys] };
+  } else {
+    const selected = document.querySelector(`.question-card[data-q="${q}"] .option-btn.selected`);
+    if (!selected) return;
+    answers[q] = selected.dataset.value;
+  }
+  currentQ = q + 1;
+  document.querySelectorAll('.question-card').forEach((c,i) => c.classList.toggle('active', i === currentQ));
+  updateProgress();
+  window.scrollTo(0,0);
+}
+
+function goBack() {
+  if (currentQ <= 0) return;
+  currentQ--;
+  document.querySelectorAll('.question-card').forEach((c,i) => c.classList.toggle('active', i === currentQ));
+  updateProgress();
+  window.scrollTo(0,0);
+}
+
+function computeScore(circle) {
+  const keys = answers[0]?.keys || [];
+  const cats = answers[0]?.cats || [];
+  const intensity = answers[1] || 'middle';
+  const vibe = answers[2] || 'cozy';
+  const purpose = answers[3] || 'friends';
+
+  let score = 50;
+
+  // genre_key match
+  if (keys.length > 0 && circle.genre_key) {
+    if (keys.includes(circle.genre_key)) {
+      score += 30;
+    } else {
+      const inCat = circle.categories.some(c => cats.includes(c));
+      if (inCat) score -= 10;
+      else score -= 20;
+    }
+  } else if (cats.length > 0) {
+    if (circle.categories.some(c => cats.includes(c))) score += 15;
+    else score -= 10;
+  }
+
+  // intensity
+  if (circle.intensity === intensity) score += 15;
+  else if (Math.abs(['yuru','middle','gachi'].indexOf(circle.intensity) - ['yuru','middle','gachi'].indexOf(intensity)) === 1) score += 5;
+
+  // vibe
+  if (circle.vibe === vibe) score += 10;
+
+  // purpose bonus
+  if (purpose === 'friends' && circle.scores?.social >= 7) score += 8;
+  if (purpose === 'skill' && (circle.intensity === 'gachi' || circle.intensity === 'middle')) score += 8;
+  if (purpose === 'experience' && circle.categories.includes('outdoor')) score += 8;
+  if (purpose === 'relax' && circle.intensity === 'yuru') score += 8;
+
+  return Math.max(0, Math.min(100, score));
+}
+
+function showResult() {
+  const selected = document.querySelector(`.question-card[data-q="3"] .option-btn.selected`);
+  if (!selected) return;
+  answers[3] = selected.dataset.value;
+
+  const keys = answers[0]?.keys || [];
+  const cats = answers[0]?.cats || [];
+
+  // pool filtering
+  const byGenre = keys.length > 0
+    ? CIRCLES.filter(c => c.genre_key && keys.includes(c.genre_key))
+    : cats.length > 0
+      ? CIRCLES.filter(c => c.categories.some(cat => cats.includes(cat)))
+      : CIRCLES;
+
+  const pool = byGenre.length >= 3 ? byGenre : CIRCLES;
+
+  const scored = pool.map(c => ({ ...c, matchScore: computeScore(c) }));
+  scored.sort((a, b) => b.matchScore - a.matchScore);
+  const top5 = scored.slice(0, 5);
+  const topScore = top5[0]?.matchScore ?? 0;
+
+  const list = document.getElementById('circle-list');
+  list.innerHTML = '';
+
+  const rankLabels = ['🥇 1位','🥈 2位','🥉 3位','4位','5位'];
+  const rankClasses = ['rank-1','rank-2','rank-3','rank-4','rank-5'];
+
+  top5.forEach((c, i) => {
+    const pct = topScore > 0 ? Math.round((c.matchScore / topScore) * 100) : 50;
+    const emoji = getEmoji(c);
+    const tagsHtml = (c.tags||[]).map(t => `<span class="tag ${t.c}">${t.l}</span>`).join('');
+    const card = document.createElement('div');
+    card.className = 'circle-card';
+    card.innerHTML = `
+      <div class="circle-thumb"><span class="circle-thumb-emoji">${emoji}</span></div>
+      <div class="circle-body">
+        <div class="circle-top">
+          <span class="circle-rank ${rankClasses[i]}">${rankLabels[i]}</span>
+          <div>
+            <div class="circle-name">${c.name}</div>
+            <div class="circle-cat">${c.category_label||''}</div>
+          </div>
+        </div>
+        <div class="circle-tags-row">${tagsHtml}</div>
+        <div class="circle-desc">${c.desc||c.catchcopy||''}</div>
+        <div class="circle-match-row">
+          <div class="match-bar"><div class="match-bar-fill" style="width:${pct}%"></div></div>
+          <div class="match-pct">${pct}%</div>
+        </div>
+      </div>`;
+    card.onclick = () => openModal(c);
+    list.appendChild(card);
+  });
+
+  // タイプ診断
+  const type = determineType();
+  currentTypeName = type.name;
+  document.getElementById('type-emoji').textContent = type.emoji;
+  document.getElementById('type-name').textContent = type.name;
+  document.getElementById('type-catchcopy').textContent = type.catchcopy;
+  document.getElementById('type-desc').textContent = type.desc;
+  document.getElementById('type-tags').innerHTML = type.tags.map(t => `<span class="type-tag">${t}</span>`).join('');
+
+  showScreen('screen-result');
+  setNav('nav-quiz');
+}
+
+function openModal(c) {
+  document.getElementById('modal-name').textContent = c.name;
+  document.getElementById('modal-cat').textContent = c.category_label || '東京農業大学';
+  const tagsHtml = (c.tags||[]).map(t => `<span class="tag ${t.c}">${t.l}</span>`).join('');
+  document.getElementById('modal-tags').innerHTML = tagsHtml;
+  document.getElementById('modal-desc').textContent = c.desc || c.catchcopy || '';
+  const intensityLabel = {gachi:'本気系',middle:'バランス型',yuru:'ゆるめ'}[c.intensity] || '-';
+  const vibeLabel = {bright:'明るく元気',cool:'クール',cozy:'アットホーム'}[c.vibe] || '-';
+  document.getElementById('modal-info').innerHTML = `
+    <div class="modal-info-item"><div class="modal-info-label">活動ペース</div><div class="modal-info-value">${intensityLabel}</div></div>
+    <div class="modal-info-item"><div class="modal-info-label">雰囲気</div><div class="modal-info-value">${vibeLabel}</div></div>
+  `;
+  const linkWrap = document.getElementById('modal-link-wrap');
+  if (c.detail_url) {
+    linkWrap.innerHTML = `<a class="modal-link" href="${c.detail_url}" target="_blank" rel="noopener">🔗 農大公式ページを見る</a>`;
+  } else {
+    linkWrap.innerHTML = '';
+  }
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('modal-overlay')) {
+    document.getElementById('modal-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+}
+
+// Browse
+const CATEGORY_FILTERS = [
+  {label:'すべて', value:'all'},
+  {label:'⚾ 野球・スポーツ', value:'sports'},
+  {label:'🎵 音楽・文化', value:'culture'},
+  {label:'🌿 アウトドア', value:'outdoor'},
+  {label:'🌍 国際・ボランティア', value:'social'},
+  {label:'🎨 美術・創作', value:'creative'},
+  {label:'🎮 ゲーム・趣味', value:'game'},
+  {label:'本気系', value:'gachi'},
+  {label:'ゆるめ', value:'yuru'},
+];
+
+let activeCatFilter = 'all';
+
+function showBrowse() {
+  // build filter chips
+  const filterRow = document.getElementById('filter-row');
+  filterRow.innerHTML = CATEGORY_FILTERS.map(f =>
+    `<button class="filter-chip ${f.value === activeCatFilter ? 'active' : ''}" onclick="setCatFilter('${f.value}')">${f.label}</button>`
+  ).join('');
+  renderBrowse();
+  showScreen('screen-browse');
+  setNav('nav-browse');
+}
+
+function setCatFilter(val) {
+  activeCatFilter = val;
+  document.querySelectorAll('.filter-chip').forEach((c,i) => {
+    c.classList.toggle('active', CATEGORY_FILTERS[i].value === val);
+  });
+  renderBrowse();
+}
+
+function filterBrowse() { renderBrowse(); }
+
+function renderBrowse() {
+  const q = (document.getElementById('browse-search')?.value || '').toLowerCase();
+  let filtered = CIRCLES.filter(c => {
+    const textMatch = !q || c.name.toLowerCase().includes(q) || (c.desc||'').toLowerCase().includes(q) || (c.genre_ja||'').includes(q);
+    if (!textMatch) return false;
+    if (activeCatFilter === 'all') return true;
+    if (activeCatFilter === 'gachi') return c.intensity === 'gachi';
+    if (activeCatFilter === 'yuru') return c.intensity === 'yuru';
+    if (activeCatFilter === 'game') return c.genre_key === 'game';
+    return c.categories.includes(activeCatFilter) || c.genre_key === activeCatFilter;
+  });
+
+  document.getElementById('browse-count').textContent = `${filtered.length}件のサークル`;
+  const grid = document.getElementById('browse-grid');
+  if (filtered.length === 0) {
+    grid.innerHTML = '<div class="no-results"><div class="no-results-icon">🌿</div><div>見つかりませんでした</div></div>';
+    return;
+  }
+  grid.innerHTML = filtered.map(c => {
+    const emoji = getEmoji(c);
+    const tagsHtml = (c.tags||[]).slice(0,2).map(t => `<span class="tag ${t.c}">${t.l}</span>`).join('');
+    return `<div class="browse-card" onclick='openModal(${JSON.stringify(c).replace(/'/g,"&#39;")})'>
+      <div class="browse-thumb"><span class="browse-thumb-emoji">${emoji}</span></div>
+      <div class="browse-body">
+        <div class="browse-name">${c.name}</div>
+        <div class="browse-cat">${c.category_label||''}</div>
+        <div class="browse-tags">${tagsHtml}</div>
+        <div class="browse-desc">${c.desc||c.catchcopy||''}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// Share
+function shareTwitter() {
+  const top = document.querySelector('.circle-name');
+  const circle = top ? top.textContent : '農大サークル';
+  const text = `農大サークルマッチで「${currentTypeName}」と診断されました！\nおすすめサークル1位：${circle} 🌿\n#農大 #東京農業大学 #サークル`;
+  const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+  window.open(url, '_blank');
+}
+
+function shareLine() {
+  const top = document.querySelector('.circle-name');
+  const circle = top ? top.textContent : '農大サークル';
+  const text = `農大サークルマッチで「${currentTypeName}」と診断されました！\nおすすめ：${circle} 🌿\n農大生はやってみてください！`;
+  const url = `https://social-plugins.line.me/lineit/share?text=${encodeURIComponent(text)}`;
+  window.open(url, '_blank');
+}
+
+function copyResult() {
+  const top = document.querySelector('.circle-name');
+  const circle = top ? top.textContent : '農大サークル';
+  const text = `【農大サークルマッチ診断結果】\n私のタイプ：${currentTypeName}\nおすすめサークル：${circle} 🌿\n#農大 #東京農業大学`;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.share-copy');
+    const orig = btn.textContent;
+    btn.textContent = '✅ コピーしました';
+    setTimeout(() => { btn.textContent = orig; }, 2000);
+  }).catch(() => alert('コピーできませんでした'));
+}
+</script>
+</body>
+</html>
