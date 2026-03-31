@@ -716,18 +716,15 @@ function computeScore(circle) {
   const maxCatScore = cats.length * 10 || 1;
   score += Math.round((catScore / maxCatScore) * 30);
 
-  // 具体的なジャンルキー一致ボーナス (+25)
-  // テニスを選んだらテニスサークルを優先、野球部は除外
+  // 具体的なジャンルキー一致ボーナス (+25) / 不一致ペナルティ (-15)
   if(keys.length > 0 && circle.genre_key) {
     if(keys.includes(circle.genre_key)) {
       score += 25; // 完全一致ボーナス
     } else {
-      // 同カテゴリだが異なる具体スポーツ → ペナルティ
-      const sportsKeys = ['baseball','football','futsal','basketball','tennis','volleyball','golf','badminton','skiing','swimming','martial-arts'];
-      const circleIsSport = sportsKeys.includes(circle.genre_key);
-      const userWantsSport = keys.some(k => sportsKeys.includes(k));
-      if(circleIsSport && userWantsSport) {
-        score -= 15; // 違うスポーツは大幅減点
+      // ユーザーが選んだカテゴリと同じカテゴリのサークルだが genre_key が違う → ペナルティ
+      const circleInSelectedCat = circle.categories.some(c => cats.includes(c));
+      if(circleInSelectedCat) {
+        score -= 15; // 同カテゴリだが違うジャンル（ダンス選んでオーケストラ等）は減点
       }
     }
   }
@@ -790,8 +787,14 @@ function showResult() {
   // score all circles
   const scored = CIRCLES.map(c => ({ ...c, matchScore: computeScore(c) }));
   scored.sort((a,b) => b.matchScore - a.matchScore);
-  const top5 = scored.slice(0, 5);
-  const topScore = top5[0].matchScore;
+
+  // マッチするサークルのみ表示（スコア閾値: 上位スコアの70%以上）
+  const topScore = scored[0].matchScore;
+  const threshold = Math.max(55, Math.floor(topScore * 0.70));
+  const matched = scored.filter(c => c.matchScore >= threshold);
+  const top5 = matched.slice(0, 5).length >= 3
+    ? matched.slice(0, 5)
+    : scored.slice(0, 3); // フォールバック: 最低3件は表示
 
   showScreen('screen-result');
 
