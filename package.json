@@ -1,0 +1,12 @@
+{
+  "name": "circle-match",
+  "version": "1.0.0",
+  "description": "サークルマッチ — 運命のサークルを探せ",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

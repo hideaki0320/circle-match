@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>サークルマッチ — 運命のサークルを探せ</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0d12;
+  --surface: #16161e;
+  --surface2: #1e1e2a;
+  --surface3: #252535;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.13);
+  --accent: #ff4d6d;
+  --accent2: #ff8fa3;
+  --gold: #ffd166;
+  --teal: #06d6a0;
+  --blue: #4cc9f0;
+  --purple: #a78bfa;
+  --text: #f0edf6;
+  --muted: rgba(240,237,246,0.45);
+  --muted2: rgba(240,237,246,0.25);
+  --radius: 20px;
+  --radius-sm: 12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;min-height:100vh;overflow-x:hidden;}
+/* bg blobs */
+.blob{position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(80px);}
+.blob-1{width:500px;height:500px;top:-150px;left:-150px;background:radial-gradient(circle,rgba(255,77,109,0.12),transparent 70%);}
+.blob-2{width:600px;height:600px;bottom:-200px;right:-200px;background:radial-gradient(circle,rgba(6,214,160,0.08),transparent 70%);}
+.blob-3{width:400px;height:400px;top:40%;left:50%;background:radial-gradient(circle,rgba(76,201,240,0.06),transparent 70%);}
+
+/* SCREENS */
+.screen{display:none;position:relative;z-index:1;}
+.screen.active{display:block;}
+
+/* ===== LANDING ===== */
+#screen-landing{min-height:100vh;display:none;flex-direction:column;align-items:center;justify-content:center;padding:48px 20px 60px;}
+#screen-landing.active{display:flex;}
+.land-logo{font-family:'DM Serif Display',serif;font-size:42px;background:linear-gradient(135deg,#ff4d6d,#ff8fa3);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px;}
+.land-sub{font-size:13px;color:var(--muted);letter-spacing:2px;margin-bottom:40px;}
+.land-hero{text-align:center;max-width:360px;margin-bottom:48px;}
+.land-headline{font-size:26px;font-weight:700;line-height:1.4;margin-bottom:12px;}
+.land-headline span{color:var(--accent);}
+.land-body{font-size:13px;color:var(--muted);line-height:1.8;}
+.land-cta{width:100%;max-width:360px;display:flex;flex-direction:column;gap:10px;}
+.btn-primary{width:100%;height:54px;border-radius:14px;background:linear-gradient(135deg,#ff4d6d,#ff2d55);border:none;color:#fff;font-family:'Noto Sans JP',sans-serif;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 8px 24px rgba(255,77,109,0.3);transition:transform .2s,box-shadow .2s;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(255,77,109,0.4);}
+.btn-secondary{width:100%;height:54px;border-radius:14px;background:transparent;border:1.5px solid var(--border2);color:var(--text);font-family:'Noto Sans JP',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:border-color .2s,background .2s;}
+.btn-secondary:hover{border-color:rgba(255,255,255,0.25);background:var(--surface);}
+.land-stats{display:flex;gap:28px;justify-content:center;margin-top:40px;}
+.stat{text-align:center;}
+.stat-num{font-family:'DM Serif Display',serif;font-size:28px;background:linear-gradient(135deg,#ff4d6d,#ff8fa3);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.stat-label{font-size:11px;color:var(--muted);margin-top:2px;}
+
+/* ===== QUIZ ===== */
+#screen-quiz{min-height:100vh;display:none;flex-direction:column;align-items:center;padding:32px 16px 60px;}
+#screen-quiz.active{display:flex;}
+.quiz-wrap{width:100%;max-width:440px;}
+.quiz-logo{text-align:center;margin-bottom:24px;}
+.quiz-logo-title{font-family:'DM Serif Display',serif;font-size:24px;background:linear-gradient(135deg,#ff4d6d,#ff8fa3);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.progress-wrap{display:flex;align-items:center;gap:8px;margin-bottom:20px;}
+.progress-bar{flex:1;height:3px;background:var(--border);border-radius:99px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,#ff4d6d,#ff8fa3);border-radius:99px;transition:width .5s cubic-bezier(.34,1.56,.64,1);}
+.progress-text{font-size:12px;color:var(--muted);min-width:36px;text-align:right;}
+.question-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px 24px 24px;display:none;flex-direction:column;animation:cardIn .4s cubic-bezier(.34,1.56,.64,1);}
+.question-card.active{display:flex;}
+@keyframes cardIn{from{opacity:0;transform:scale(.94) translateY(14px);}to{opacity:1;transform:scale(1) translateY(0);}}
+.card-tag{display:inline-block;font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent2);background:rgba(255,77,109,0.1);border:1px solid rgba(255,77,109,0.18);padding:3px 10px;border-radius:99px;margin-bottom:14px;align-self:flex-start;}
+.card-question{font-size:19px;font-weight:700;line-height:1.45;margin-bottom:6px;}
+.card-hint{font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.6;}
+.options{display:flex;flex-direction:column;gap:8px;}
+.option-btn{background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;padding:13px 16px;color:var(--text);font-family:'Noto Sans JP',sans-serif;font-size:13px;text-align:left;cursor:pointer;transition:border-color .2s,transform .15s,box-shadow .2s;display:flex;flex-direction:column;gap:2px;}
+.option-btn:hover{border-color:rgba(255,77,109,0.35);transform:translateY(-1px);box-shadow:0 6px 20px rgba(255,77,109,0.1);}
+.option-btn.selected{border-color:var(--accent);background:rgba(255,77,109,0.08);box-shadow:0 0 0 1px var(--accent);}
+.option-label{font-weight:500;font-size:13px;}
+.option-sub{font-size:11px;color:var(--muted);}
+/* hobby tags */
+.hobby-section{display:flex;flex-direction:column;gap:16px;}
+.genre-label{font-size:10px;font-weight:500;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:8px;display:block;}
+.tag-grid{display:flex;flex-wrap:wrap;gap:7px;}
+.hobby-tag{background:var(--surface2);border:1.5px solid var(--border);border-radius:99px;padding:7px 15px;color:var(--text);font-family:'Noto Sans JP',sans-serif;font-size:12px;cursor:pointer;transition:border-color .18s,background .18s,transform .12s;user-select:none;}
+.hobby-tag:hover{border-color:rgba(255,77,109,0.4);transform:translateY(-1px);}
+.hobby-tag.selected{border-color:var(--accent);background:rgba(255,77,109,0.12);color:var(--accent2);font-weight:500;}
+.hobby-other-wrap{margin-top:4px;}
+.hobby-other-label{font-size:11px;color:var(--muted);margin-bottom:6px;display:block;}
+.hobby-other-input{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-family:'Noto Sans JP',sans-serif;font-size:13px;outline:none;transition:border-color .2s;}
+.hobby-other-input::placeholder{color:var(--muted);}
+.hobby-other-input:focus{border-color:rgba(255,77,109,0.4);}
+.hobby-count{font-size:11px;color:var(--accent2);margin-top:10px;min-height:16px;text-align:right;}
+/* nav */
+.quiz-nav{display:flex;gap:10px;align-items:center;margin-top:14px;}
+.btn-back{width:48px;height:48px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .2s,color .2s;flex-shrink:0;font-family:inherit;}
+.btn-back:hover{border-color:rgba(255,255,255,0.2);color:var(--text);}
+.btn-back:disabled{opacity:.25;cursor:not-allowed;}
+.btn-next{flex:1;height:48px;border-radius:12px;background:linear-gradient(135deg,#ff4d6d,#ff2d55);border:none;color:#fff;font-family:'Noto Sans JP',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:transform .2s,box-shadow .2s,opacity .2s;box-shadow:0 6px 20px rgba(255,77,109,0.28);}
+.btn-next:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 28px rgba(255,77,109,0.38);}
+.btn-next:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none;}
+
+/* ===== RESULTS ===== */
+#screen-result{min-height:100vh;display:none;flex-direction:column;align-items:center;padding:32px 16px 60px;}
+#screen-result.active{display:flex;}
+.result-wrap{width:100%;max-width:440px;}
+.result-header{text-align:center;margin-bottom:28px;animation:fadeUp .55s cubic-bezier(.34,1.56,.64,1);}
+.result-eyebrow{font-size:11px;letter-spacing:2px;color:var(--accent2);text-transform:uppercase;margin-bottom:8px;}
+.result-type{font-family:'DM Serif Display',serif;font-size:26px;margin-bottom:12px;line-height:1.3;}
+.match-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,209,102,0.08);border:1px solid rgba(255,209,102,0.25);border-radius:99px;padding:5px 16px;font-size:12px;color:var(--gold);font-weight:700;}
+.result-hobbies{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:24px;}
+.result-hobby-tag{font-size:11px;padding:3px 10px;border-radius:99px;background:rgba(6,214,160,0.08);color:var(--teal);border:1px solid rgba(6,214,160,0.18);}
+.result-section-title{font-size:12px;font-weight:500;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:14px;}
+.circle-list{display:flex;flex-direction:column;gap:16px;margin-bottom:24px;}
+.circle-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:border-color .2s,transform .2s;animation:fadeUp .5s cubic-bezier(.34,1.56,.64,1) both;}
+.circle-card:nth-child(1){animation-delay:.05s;}
+.circle-card:nth-child(2){animation-delay:.12s;}
+.circle-card:nth-child(3){animation-delay:.19s;}
+.circle-card:nth-child(4){animation-delay:.26s;}
+.circle-card:nth-child(5){animation-delay:.33s;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px) scale(.97);}to{opacity:1;transform:translateY(0) scale(1);}}
+.circle-card:hover{border-color:rgba(255,77,109,0.3);transform:translateY(-2px);}
+.circle-photos{display:grid;grid-template-columns:2fr 1fr;grid-template-rows:100px 100px;gap:2px;height:202px;}
+.photo{overflow:hidden;background:var(--surface2);}
+.photo:first-child{grid-row:1/3;}
+.photo img{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.9);transition:filter .3s,transform .4s;}
+.circle-card:hover .photo img{filter:brightness(1);transform:scale(1.04);}
+.circle-body{padding:14px 16px;}
+.circle-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.circle-rank{font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;flex-shrink:0;}
+.rank-1{background:rgba(255,209,102,0.15);color:var(--gold);border:1px solid rgba(255,209,102,0.3);}
+.rank-2{background:rgba(240,237,246,0.07);color:var(--muted);border:1px solid rgba(255,255,255,0.1);}
+.rank-3{background:rgba(205,127,50,0.1);color:#cd7f32;border:1px solid rgba(205,127,50,0.25);}
+.rank-4,.rank-5{background:rgba(167,139,250,0.08);color:var(--purple);border:1px solid rgba(167,139,250,0.2);}
+.circle-name{font-size:14px;font-weight:700;}
+.circle-univ{font-size:11px;color:var(--muted);}
+.circle-tags-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;}
+.tag{font-size:10px;padding:2px 8px;border-radius:99px;font-weight:500;}
+.tag-pink{background:rgba(255,77,109,0.1);color:var(--accent2);border:1px solid rgba(255,77,109,0.18);}
+.tag-teal{background:rgba(6,214,160,0.08);color:var(--teal);border:1px solid rgba(6,214,160,0.18);}
+.tag-gold{background:rgba(255,209,102,0.08);color:var(--gold);border:1px solid rgba(255,209,102,0.18);}
+.tag-blue{background:rgba(76,201,240,0.08);color:var(--blue);border:1px solid rgba(76,201,240,0.18);}
+.tag-purple{background:rgba(167,139,250,0.08);color:var(--purple);border:1px solid rgba(167,139,250,0.18);}
+.circle-desc{font-size:12px;color:var(--muted);line-height:1.65;margin-bottom:10px;}
+.circle-match-row{display:flex;align-items:center;gap:8px;}
+.match-bar{flex:1;height:3px;background:var(--border);border-radius:99px;overflow:hidden;}
+.match-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#ff4d6d,#ff8fa3);}
+.match-pct{font-size:11px;color:var(--accent2);font-weight:700;min-width:30px;text-align:right;}
+.deco-line{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:20px 0;}
+.result-actions{display:flex;flex-direction:column;gap:10px;}
+.btn-ghost{width:100%;height:48px;border-radius:12px;background:var(--surface2);border:1.5px solid var(--border);color:var(--text);font-family:'Noto Sans JP',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:border-color .2s,background .2s;}
+.btn-ghost:hover{border-color:var(--border2);background:var(--surface);}
+
+/* ===== BROWSE ===== */
+#screen-browse{min-height:100vh;display:none;flex-direction:column;align-items:center;padding:32px 16px 80px;}
+#screen-browse.active{display:flex;}
+.browse-wrap{width:100%;max-width:800px;}
+.browse-header{display:flex;align-items:center;gap:12px;margin-bottom:24px;}
+.browse-back{width:40px;height:40px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;font-family:inherit;transition:border-color .2s,color .2s;flex-shrink:0;}
+.browse-back:hover{border-color:var(--border2);color:var(--text);}
+.browse-title{font-family:'DM Serif Display',serif;font-size:22px;background:linear-gradient(135deg,#ff4d6d,#ff8fa3);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.search-bar{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:12px 16px;color:var(--text);font-family:'Noto Sans JP',sans-serif;font-size:14px;outline:none;transition:border-color .2s;margin-bottom:16px;}
+.search-bar::placeholder{color:var(--muted);}
+.search-bar:focus{border-color:rgba(255,77,109,0.4);}
+.filter-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;}
+.filter-chip{background:var(--surface2);border:1.5px solid var(--border);border-radius:99px;padding:6px 14px;font-family:'Noto Sans JP',sans-serif;font-size:12px;color:var(--muted);cursor:pointer;transition:border-color .18s,color .18s,background .18s;white-space:nowrap;}
+.filter-chip:hover{border-color:rgba(255,77,109,0.35);color:var(--text);}
+.filter-chip.active{border-color:var(--accent);background:rgba(255,77,109,0.1);color:var(--accent2);}
+.browse-count{font-size:12px;color:var(--muted);margin-bottom:12px;}
+.browse-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;}
+.browse-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:border-color .2s,transform .2s;}
+.browse-card:hover{border-color:rgba(255,77,109,0.3);transform:translateY(-2px);}
+.browse-thumb{height:140px;overflow:hidden;background:var(--surface2);}
+.browse-thumb img{width:100%;height:100%;object-fit:cover;filter:brightness(.9);transition:filter .3s,transform .4s;}
+.browse-card:hover .browse-thumb img{filter:brightness(1);transform:scale(1.04);}
+.browse-body{padding:12px 14px;}
+.browse-name{font-size:13px;font-weight:700;margin-bottom:4px;}
+.browse-univ{font-size:11px;color:var(--muted);margin-bottom:6px;}
+.browse-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;}
+.browse-desc{font-size:11px;color:var(--muted);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.no-results{text-align:center;padding:60px 20px;color:var(--muted);}
+.no-results-icon{font-size:40px;margin-bottom:12px;}
+.no-results-text{font-size:14px;}
+
+/* ===== MODAL ===== */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:100;display:none;align-items:flex-end;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;animation:slideUp .35s cubic-bezier(.34,1.56,.64,1);}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.modal-photos{display:grid;grid-template-columns:2fr 1fr;grid-template-rows:120px 120px;gap:2px;height:242px;}
+.modal-photos .photo img{filter:brightness(.95);}
+.modal-content{padding:20px 20px 32px;}
+.modal-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;}
+.modal-name{font-size:18px;font-weight:700;}
+.modal-close{width:32px;height:32px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;font-family:inherit;flex-shrink:0;transition:border-color .2s,color .2s;}
+.modal-close:hover{border-color:var(--border2);color:var(--text);}
+.modal-univ{font-size:12px;color:var(--muted);margin-bottom:10px;}
+.modal-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px;}
+.modal-desc{font-size:13px;color:var(--muted);line-height:1.75;margin-bottom:18px;}
+.modal-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;}
+.modal-info-item{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;}
+.modal-info-label{font-size:10px;color:var(--muted);margin-bottom:3px;letter-spacing:.5px;}
+.modal-info-value{font-size:13px;font-weight:500;}
+.modal-sns{display:flex;gap:8px;}
+.sns-btn{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);background:var(--surface2);border:1px solid var(--border);border-radius:99px;padding:6px 14px;cursor:pointer;transition:border-color .2s,color .2s;text-decoration:none;}
+.sns-btn:hover{border-color:var(--border2);color:var(--text);}
+
+/* ===== BOTTOM NAV ===== */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:50;background:rgba(13,13,18,.92);backdrop-filter:blur(12px);border-top:1px solid var(--border);display:none;justify-content:center;gap:0;}
+.bottom-nav.visible{display:flex;}
+.nav-item{flex:1;max-width:120px;padding:10px 0 14px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;border:none;background:none;color:var(--muted);font-family:'Noto Sans JP',sans-serif;font-size:10px;transition:color .2s;}
+.nav-item.active{color:var(--accent2);}
+.nav-item:hover{color:var(--text);}
+.nav-icon{font-size:20px;line-height:1;}
+
+@media(min-width:600px){
+  #screen-browse.active{padding-top:48px;}
+  .modal-overlay{align-items:center;}
+  .modal{border-radius:24px;max-height:80vh;}
+}
+</style>
+</head>
+<body>
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+<div class="blob blob-3"></div>
+
+<!-- LANDING -->
+<div id="screen-landing" class="screen active">
+  <div class="land-logo">サークルマッチ</div>
+  <div class="land-sub">FIND YOUR CIRCLE</div>
+  <div class="land-hero">
+    <div class="land-headline">あなたにぴったりの<br><span>サークル</span>が見つかる</div>
+    <div class="land-body">7つの質問に答えるだけ。趣味・雰囲気・目的から<br>あなたに合ったサークルをAIがマッチング。</div>
+  </div>
+  <div class="land-cta">
+    <button class="btn-primary" onclick="startQuiz()">診断スタート（無料）</button>
+    <button class="btn-secondary" onclick="showBrowse()">サークルを探す・一覧を見る</button>
+  </div>
+  <div class="land-stats">
+    <div class="stat"><div class="stat-num">25+</div><div class="stat-label">掲載サークル</div></div>
+    <div class="stat"><div class="stat-num">7</div><div class="stat-label">大学・対応</div></div>
+    <div class="stat"><div class="stat-num">30秒</div><div class="stat-label">診断時間</div></div>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="screen-quiz" class="screen">
+  <div class="quiz-wrap">
+    <div class="quiz-logo"><div class="quiz-logo-title">サークルマッチ</div></div>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:14.28%"></div></div>
+      <div class="progress-text" id="progress-text">1 / 7</div>
+    </div>
+    <div id="quiz-cards">
+
+      <!-- Q1: ステータス -->
+      <div class="question-card active" data-q="0">
+        <span class="card-tag">あなたについて</span>
+        <div class="card-question">今のあなたは？</div>
+        <div class="card-hint">最も近いものを選んでください</div>
+        <div class="options">
+          <button class="option-btn" data-value="new_univ" onclick="selectOption(this)">
+            <span class="option-label">新大学1年生（春から大学生）</span>
+            <span class="option-sub">入学先が決まっていてサークルを探したい</span>
+          </button>
+          <button class="option-btn" data-value="highschool" onclick="selectOption(this)">
+            <span class="option-label">高校生（大学進学を考えている）</span>
+            <span class="option-sub">進学先で入るサークルのイメージを掴みたい</span>
+          </button>
+          <button class="option-btn" data-value="sophomore" onclick="selectOption(this)">
+            <span class="option-label">大学2年生以上・転サークルを検討中</span>
+            <span class="option-sub">今のサークルを変えたい、または新しく入りたい</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Q2: 大学 -->
+      <div class="question-card" data-q="1">
+        <span class="card-tag">大学 / 場所</span>
+        <div class="card-question">通っている、または進学予定の大学は？</div>
+        <div class="card-hint">気になっている大学でもOK</div>
+        <div class="options">
+          <button class="option-btn" data-value="waseda" onclick="selectOption(this)">
+            <span class="option-label">早稲田大学</span>
+            <span class="option-sub">500以上のサークルあり</span>
+          </button>
+          <button class="option-btn" data-value="keio" onclick="selectOption(this)">
+            <span class="option-label">慶應義塾大学</span>
+            <span class="option-sub">インカレも充実</span>
+          </button>
+          <button class="option-btn" data-value="march" onclick="selectOption(this)">
+            <span class="option-label">MARCH・その他私立</span>
+            <span class="option-sub">明治・青山・立教・中央・法政など</span>
+          </button>
+          <button class="option-btn" data-value="kokuritu" onclick="selectOption(this)">
+            <span class="option-label">国公立大学</span>
+            <span class="option-sub">東大・一橋・東工大など</span>
+          </button>
+          <button class="option-btn" data-value="inkare" onclick="selectOption(this)">
+            <span class="option-label">大学問わず探したい</span>
+            <span class="option-sub">インカレ・他大との交流OKなサークルを見たい</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Q3: 趣味タグ -->
+      <div class="question-card" data-q="2">
+        <span class="card-tag">趣味 / 興味</span>
+        <div class="card-question">好きなこと・興味があることを選んで</div>
+        <div class="card-hint">複数選べます。これをもとにマッチングします</div>
+        <div class="hobby-section">
+          <div>
+            <span class="genre-label">スポーツ</span>
+            <div class="tag-grid">
+              <button class="hobby-tag" data-cat="sports" onclick="toggleHobby(this)">テニス</button>
+              <button class="hobby-tag" data-cat="sports" onclick="toggleHobby(this)">サッカー</button>
+              <button class="hobby-tag" data-cat="sports" onclick="toggleHobby(this)">バスケ</button>
+              <button class="hobby-tag" data-cat="sports" onclick="toggleHobby(this)">バドミントン</button>
+              <button class="hobby-tag" data-cat="sports" onclick="toggleHobby(this)">フットサル</button>
+              <button class="hobby-tag" data-cat="sports" onclick="toggleHobby(this)">水泳</button>
+              <button class="hobby-tag" data-cat="sports" onclick="toggleHobby(this)">ゴルフ</button>
+              <button class="hobby-tag" data-cat="sports" onclick="toggleHobby(this)">ランニング</button>
+            </div>
+          </div>
+          <div>
+            <span class="genre-label">音楽・ダンス・パフォーマンス</span>
+            <div class="tag-grid">
+              <button class="hobby-tag" data-cat="culture" onclick="toggleHobby(this)">音楽・バンド</button>
+              <button class="hobby-tag" data-cat="culture" onclick="toggleHobby(this)">ダンス</button>
+              <button class="hobby-tag" data-cat="culture" onclick="toggleHobby(this)">アカペラ</button>
+              <button class="hobby-tag" data-cat="culture" onclick="toggleHobby(this)">演劇</button>
+            </div>
+          </div>
+          <div>
+            <span class="genre-label">クリエイティブ・アート</span>
+            <div class="tag-grid">
+              <button class="hobby-tag" data-cat="creative" onclick="toggleHobby(this)">映画・映像</button>
+              <button class="hobby-tag" data-cat="creative" onclick="toggleHobby(this)">写真</button>
+              <button class="hobby-tag" data-cat="creative" onclick="toggleHobby(this)">イラスト・デザイン</button>
+              <button class="hobby-tag" data-cat="creative" onclick="toggleHobby(this)">マンガ・アニメ</button>
+            </div>
+          </div>
+          <div>
+            <span class="genre-label">学び・スキル</span>
+            <div class="tag-grid">
+              <button class="hobby-tag" data-cat="tech" onclick="toggleHobby(this)">プログラミング</button>
+              <button class="hobby-tag" data-cat="tech" onclick="toggleHobby(this)">ビジネス・起業</button>
+              <button class="hobby-tag" data-cat="social" onclick="toggleHobby(this)">語学・国際交流</button>
+              <button class="hobby-tag" data-cat="social" onclick="toggleHobby(this)">ボランティア</button>
+              <button class="hobby-tag" data-cat="tech" onclick="toggleHobby(this)">ディベート・議論</button>
+            </div>
+          </div>
+          <div>
+            <span class="genre-label">アウトドア・ライフスタイル</span>
+            <div class="tag-grid">
+              <button class="hobby-tag" data-cat="outdoor" onclick="toggleHobby(this)">旅行・アウトドア</button>
+              <button class="hobby-tag" data-cat="outdoor" onclick="toggleHobby(this)">キャンプ・登山</button>
+              <button class="hobby-tag" data-cat="social" onclick="toggleHobby(this)">料理・グルメ</button>
+              <button class="hobby-tag" data-cat="social" onclick="toggleHobby(this)">カフェ巡り</button>
+              <button class="hobby-tag" data-cat="game" onclick="toggleHobby(this)">ゲーム・eスポーツ</button>
+              <button class="hobby-tag" data-cat="game" onclick="toggleHobby(this)">ボードゲーム</button>
+            </div>
+          </div>
+          <div class="hobby-other-wrap">
+            <span class="hobby-other-label">上にない場合は自由に入力</span>
+            <input class="hobby-other-input" type="text" id="hobby-other" placeholder="例：釣り、落語、鉄道…" oninput="updateHobbyCount()">
+          </div>
+          <div class="hobby-count" id="hobby-count"></div>
+        </div>
+      </div>
+
+      <!-- Q4: 本音 -->
+      <div class="question-card" data-q="3">
+        <span class="card-tag">本音</span>
+        <div class="card-question">サークルに入る一番の理由は？</div>
+        <div class="card-hint">建前じゃなくて正直に答えてOK</div>
+        <div class="options">
+          <button class="option-btn" data-value="love" onclick="selectOption(this)">
+            <span class="option-label">出会い・恋愛</span>
+            <span class="option-sub">かわいい子・かっこいい人に会いたい</span>
+          </button>
+          <button class="option-btn" data-value="friends" onclick="selectOption(this)">
+            <span class="option-label">仲間・居場所づくり</span>
+            <span class="option-sub">気の合う友達が欲しい、居心地のいい場所を見つけたい</span>
+          </button>
+          <button class="option-btn" data-value="skill" onclick="selectOption(this)">
+            <span class="option-label">スキルアップ・就活</span>
+            <span class="option-sub">ガクチカになること・成長・将来につながる経験がしたい</span>
+          </button>
+          <button class="option-btn" data-value="enjoy" onclick="selectOption(this)">
+            <span class="option-label">純粋に楽しみたい</span>
+            <span class="option-sub">青春したい、好きなことを思い切り楽しみたい</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Q5: ガチ度 -->
+      <div class="question-card" data-q="4">
+        <span class="card-tag">ガチ度</span>
+        <div class="card-question">どれくらい本気でやりたい？</div>
+        <div class="card-hint">活動頻度と熱量のイメージで選んで</div>
+        <div class="options">
+          <button class="option-btn" data-value="gachi" onclick="selectOption(this)">
+            <span class="option-label">本気でやる</span>
+            <span class="option-sub">週3以上・大会・成果にこだわりたい</span>
+          </button>
+          <button class="option-btn" data-value="middle" onclick="selectOption(this)">
+            <span class="option-label">ほどほどに</span>
+            <span class="option-sub">週1〜2・メリハリをつけたい</span>
+          </button>
+          <button class="option-btn" data-value="yuru" onclick="selectOption(this)">
+            <span class="option-label">ゆるくでいい</span>
+            <span class="option-sub">月2〜週1・来れるときだけでOK</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Q6: 避けたいこと -->
+      <div class="question-card" data-q="5">
+        <span class="card-tag">スタイル</span>
+        <div class="card-question">サークルで避けたいことはある？</div>
+        <div class="card-hint">これがないサークルを優先して提案します</div>
+        <div class="options">
+          <button class="option-btn" data-value="money" onclick="selectOption(this)">
+            <span class="option-label">お金がかかりすぎるのは嫌</span>
+            <span class="option-sub">飲み会・合宿・道具費は抑えたい</span>
+          </button>
+          <button class="option-btn" data-value="vertical" onclick="selectOption(this)">
+            <span class="option-label">縦社会・体育会ノリは苦手</span>
+            <span class="option-sub">先輩後輩の上下関係・強制参加はしんどい</span>
+          </button>
+          <button class="option-btn" data-value="big" onclick="selectOption(this)">
+            <span class="option-label">大人数・派手な雰囲気は得意じゃない</span>
+            <span class="option-sub">少人数でアットホームな方が安心する</span>
+          </button>
+          <button class="option-btn" data-value="none" onclick="selectOption(this)">
+            <span class="option-label">特にこだわらない</span>
+            <span class="option-sub">楽しそうなら何でもOK</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Q7: 雰囲気 -->
+      <div class="question-card" data-q="6">
+        <span class="card-tag">雰囲気</span>
+        <div class="card-question">どんな空気感のサークルが好き？</div>
+        <div class="card-hint">直感で選んでOK</div>
+        <div class="options">
+          <button class="option-btn" data-value="bright" onclick="selectOption(this)">
+            <span class="option-label">明るくてにぎやか</span>
+            <span class="option-sub">大人数・わいわい・テンション高め</span>
+          </button>
+          <button class="option-btn" data-value="cozy" onclick="selectOption(this)">
+            <span class="option-label">落ち着いてアットホーム</span>
+            <span class="option-sub">少人数・みんな仲良し・居心地重視</span>
+          </button>
+          <button class="option-btn" data-value="cool" onclick="selectOption(this)">
+            <span class="option-label">スタイリッシュでかっこいい系</span>
+            <span class="option-sub">意識高め・おしゃれ・クリエイティブな雰囲気</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+    <div class="quiz-nav">
+      <button class="btn-back" id="btn-back" onclick="prevQuestion()" disabled>←</button>
+      <button class="btn-next" id="btn-next" onclick="nextQuestion()" disabled>次へ</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="screen-result" class="screen">
+  <div class="result-wrap">
+    <div class="result-header" id="result-header">
+      <div class="result-eyebrow">あなたへのおすすめ</div>
+      <div class="result-type" id="result-type"></div>
+      <div><span class="match-badge">総合マッチ度 <span id="match-score-val"></span>%</span></div>
+    </div>
+    <div class="result-hobbies" id="result-hobbies"></div>
+    <div class="result-section-title">おすすめサークル TOP 5</div>
+    <div class="circle-list" id="circle-list"></div>
+    <div class="deco-line"></div>
+    <div class="result-actions">
+      <button class="btn-ghost" onclick="showBrowse()">すべてのサークルを見る</button>
+      <button class="btn-primary" onclick="retryQuiz()">もう一度診断する</button>
+    </div>
+  </div>
+</div>
+
+<!-- BROWSE -->
+<div id="screen-browse" class="screen">
+  <div class="browse-wrap">
+    <div class="browse-header">
+      <button class="browse-back" onclick="goHome()">←</button>
+      <div class="browse-title">サークルを探す</div>
+    </div>
+    <input class="search-bar" type="text" id="search-input" placeholder="サークル名・キーワードで検索…" oninput="filterCircles()">
+    <div class="filter-row" id="filter-row">
+      <button class="filter-chip active" data-filter="all" onclick="setFilter(this)">すべて</button>
+      <button class="filter-chip" data-filter="sports" onclick="setFilter(this)">スポーツ</button>
+      <button class="filter-chip" data-filter="culture" onclick="setFilter(this)">音楽・ダンス</button>
+      <button class="filter-chip" data-filter="creative" onclick="setFilter(this)">クリエイティブ</button>
+      <button class="filter-chip" data-filter="tech" onclick="setFilter(this)">テック・ビジネス</button>
+      <button class="filter-chip" data-filter="outdoor" onclick="setFilter(this)">アウトドア</button>
+      <button class="filter-chip" data-filter="social" onclick="setFilter(this)">交流・グルメ</button>
+      <button class="filter-chip" data-filter="game" onclick="setFilter(this)">ゲーム</button>
+      <button class="filter-chip" data-filter="yuru" onclick="setFilter(this)">ゆるめ</button>
+      <button class="filter-chip" data-filter="inkare" onclick="setFilter(this)">インカレ</button>
+    </div>
+    <div class="browse-count" id="browse-count"></div>
+    <div class="browse-grid" id="browse-grid"></div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal-body">
+    <div class="modal-photos" id="modal-photos"></div>
+    <div class="modal-content">
+      <div class="modal-top">
+        <div>
+          <div class="modal-name" id="modal-name"></div>
+          <div class="modal-univ" id="modal-univ"></div>
+        </div>
+        <button class="modal-close" onclick="closeModalBtn()">✕</button>
+      </div>
+      <div class="modal-tags" id="modal-tags"></div>
+      <div class="modal-desc" id="modal-desc"></div>
+      <div class="modal-info-grid" id="modal-info-grid"></div>
+      <div class="modal-sns" id="modal-sns"></div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav" id="bottom-nav">
+  <button class="nav-item" id="nav-quiz" onclick="startQuiz()">
+    <span class="nav-icon">✦</span>診断
+  </button>
+  <button class="nav-item" id="nav-browse" onclick="showBrowse()">
+    <span class="nav-icon">◎</span>一覧
+  </button>
+  <button class="nav-item" id="nav-home" onclick="goHome()">
+    <span class="nav-icon">⌂</span>ホーム
+  </button>
+</div>
+
+<script>
+// ===== CIRCLE DATA =====
+const CIRCLES = [
+  {
+    id: 1, name: 'テニスサークル Sunny', university: '早稲田大学', inkare: false,
+    catchcopy: '初心者大歓迎！出会いも多い人気サークル',
+    desc: '毎週水・土曜に早稲田キャンパス近くのコートで活動。初心者から経験者まで幅広く参加。毎年の新歓やBBQイベントが好評で、出会いが多いと評判。男女比5:5でにぎやかな雰囲気。',
+    categories: ['sports'], intensity: 'middle', vibe: 'bright', size: 'large',
+    cost: 'medium', vertical: false, activity: '週2', members: '約120名',
+    tags: [{l:'テニス',c:'tag-teal'},{l:'男女比5:5',c:'tag-pink'},{l:'週2',c:'tag-gold'},{l:'新歓アクティブ',c:'tag-blue'}],
+    instagram: '@sunny_waseda', photos: ['tennis1','tennis2','tennis3'],
+    scores: {sports:9,culture:2,tech:1,social:7,outdoor:3,creative:1,game:1}
+  },
+  {
+    id: 2, name: 'フットサルサークル KICK', university: '早稲田大学', inkare: true,
+    catchcopy: 'ガチすぎず、でも熱い。フットサル好きの集まり',
+    desc: '早稲田・他大混合のインカレサークル。週2回の練習と月1の大会参加。体育会ほど縦社会でなく、フラットな関係性が魅力。サッカー経験者多めだが未経験者も歓迎。',
+    categories: ['sports'], intensity: 'middle', vibe: 'bright', size: 'large',
+    cost: 'medium', vertical: false, activity: '週2', members: '約80名',
+    tags: [{l:'フットサル',c:'tag-teal'},{l:'インカレ',c:'tag-pink'},{l:'大会あり',c:'tag-gold'}],
+    instagram: '@kick_futsal', photos: ['sport1','sport2','sport3'],
+    scores: {sports:9,culture:2,tech:1,social:6,outdoor:3,creative:1,game:1}
+  },
+  {
+    id: 3, name: 'バドミントンサークル Feather', university: 'MARCH', inkare: false,
+    catchcopy: 'のんびりやりたい人向け。週1でOK',
+    desc: '青山学院大学公認サークル。週1回の活動で初心者も気軽に参加できる。少人数でアットホームな雰囲気が特徴。費用が安く、気軽に始められると人気。',
+    categories: ['sports'], intensity: 'yuru', vibe: 'cozy', size: 'small',
+    cost: 'low', vertical: false, activity: '週1', members: '約35名',
+    tags: [{l:'バドミントン',c:'tag-teal'},{l:'週1',c:'tag-gold'},{l:'初心者歓迎',c:'tag-pink'},{l:'格安',c:'tag-blue'}],
+    instagram: '@feather_agubad', photos: ['sport4','sport5','sport6'],
+    scores: {sports:7,culture:1,tech:1,social:6,outdoor:2,creative:1,game:1}
+  },
+  {
+    id: 4, name: 'バスケサークル HOOP', university: '慶應義塾大学', inkare: false,
+    catchcopy: '慶應らしいおしゃれなバスケサークル',
+    desc: '慶應三田キャンパスを中心に活動。週3回練習の本格派だが、体育会ほど縦社会ではない。ユニフォームや練習着にこだわりがあり、見た目にもこだわるメンバーが多い。',
+    categories: ['sports'], intensity: 'gachi', vibe: 'cool', size: 'medium',
+    cost: 'medium', vertical: false, activity: '週3', members: '約60名',
+    tags: [{l:'バスケ',c:'tag-teal'},{l:'週3',c:'tag-pink'},{l:'おしゃれ系',c:'tag-purple'}],
+    instagram: '@hoop_keio', photos: ['basketball1','basketball2','basketball3'],
+    scores: {sports:10,culture:2,tech:1,social:5,outdoor:2,creative:2,game:1}
+  },
+  {
+    id: 5, name: 'ランニングサークル PACE', university: 'インカレ', inkare: true,
+    catchcopy: '一緒に走るだけ。友達ができるゆるラン',
+    desc: '複数大学合同のランニングサークル。週1回、代々木公園や皇居周辺を一緒に走るだけ。ランニング後にカフェやご飯に行くことも多く、自然と友達ができる。費用はほぼゼロ。',
+    categories: ['sports','outdoor'], intensity: 'yuru', vibe: 'bright', size: 'medium',
+    cost: 'low', vertical: false, activity: '週1', members: '約50名',
+    tags: [{l:'ランニング',c:'tag-teal'},{l:'インカレ',c:'tag-pink'},{l:'格安',c:'tag-gold'},{l:'ゆるめ',c:'tag-blue'}],
+    instagram: '@pace_running', photos: ['outdoor1','outdoor2','outdoor3'],
+    scores: {sports:7,culture:1,tech:1,social:7,outdoor:6,creative:1,game:1}
+  },
+  {
+    id: 6, name: 'ダンスサークル FLARE', university: '早稲田大学', inkare: true,
+    catchcopy: 'かっこよく踊りたい人が集まる本格派',
+    desc: '早稲田を中心とした大規模ダンスサークル。HIPHOPからK-POPまで多ジャンル対応。年2回の定期公演は毎回満員。見た目がおしゃれなメンバーが多く、出会いも多い。週2〜3回練習。',
+    categories: ['culture'], intensity: 'middle', vibe: 'cool', size: 'large',
+    cost: 'medium', vertical: false, activity: '週2〜3', members: '約200名',
+    tags: [{l:'ダンス',c:'tag-teal'},{l:'インカレ',c:'tag-pink'},{l:'定期公演',c:'tag-purple'},{l:'おしゃれ系',c:'tag-gold'}],
+    instagram: '@flare_dance_ws', photos: ['dance1','dance2','dance3'],
+    scores: {sports:5,culture:10,tech:1,social:7,outdoor:1,creative:5,game:1}
+  },
+  {
+    id: 7, name: '軽音楽サークル Sound Garden', university: '早稲田大学', inkare: false,
+    catchcopy: 'バンドやりたい人はここ。ライブが熱い',
+    desc: '早稲田最大規模の軽音楽サークル。年4回の定期ライブに加え、スタジオ練習は自由に組める。バンド未経験者向けの入門サポートあり。文化祭でも毎年大きなステージを担当。',
+    categories: ['culture'], intensity: 'middle', vibe: 'cozy', size: 'large',
+    cost: 'medium', vertical: false, activity: '週1〜2', members: '約150名',
+    tags: [{l:'音楽・バンド',c:'tag-purple'},{l:'ライブ',c:'tag-pink'},{l:'スタジオ自由',c:'tag-teal'}],
+    instagram: '@soundgarden_waseda', photos: ['music1','music2','music3'],
+    scores: {sports:1,culture:10,tech:1,social:5,outdoor:1,creative:7,game:1}
+  },
+  {
+    id: 8, name: 'アカペラサークル Harmonia', university: 'MARCH', inkare: false,
+    catchcopy: '歌声だけで感動させる。ハモリの快感を知って',
+    desc: '立教大学公認のアカペラサークル。グループを組んで歌うスタイルで、メンバー同士の絆が深い。年2回のコンサートに向けて練習。楽器不要でコストが低いのも魅力。',
+    categories: ['culture'], intensity: 'middle', vibe: 'cozy', size: 'medium',
+    cost: 'low', vertical: false, activity: '週2', members: '約60名',
+    tags: [{l:'アカペラ',c:'tag-purple'},{l:'格安',c:'tag-gold'},{l:'コンサート',c:'tag-pink'}],
+    instagram: '@harmonia_rikkyo', photos: ['music4','music5','music6'],
+    scores: {sports:1,culture:10,tech:1,social:6,outdoor:1,creative:6,game:1}
+  },
+  {
+    id: 9, name: '演劇サークル Stage Works', university: 'MARCH', inkare: false,
+    catchcopy: '脚本から舞台まで全部自分たちでつくる',
+    desc: '明治大学公認の演劇サークル。年2回の公演を完全自主制作。脚本・演出・衣装・舞台美術まで学生が担当。文系・理系問わず参加でき、表現することが好きな人が集まる。',
+    categories: ['culture','creative'], intensity: 'middle', vibe: 'cool', size: 'medium',
+    cost: 'medium', vertical: false, activity: '週2〜3', members: '約45名',
+    tags: [{l:'演劇',c:'tag-purple'},{l:'自主制作',c:'tag-pink'},{l:'ガクチカ向き',c:'tag-gold'}],
+    instagram: '@stageworks_meiji', photos: ['theater1','theater2','theater3'],
+    scores: {sports:1,culture:8,tech:2,social:5,outdoor:1,creative:10,game:1}
+  },
+  {
+    id: 10, name: '映画鑑賞サークル Cinéma', university: '早稲田大学', inkare: false,
+    catchcopy: '映画を語り合う。それだけでいい',
+    desc: '月2回の上映会と鑑賞後のディスカッションが中心。映画を作ることより「観て語る」ことに特化したサークル。人数が少なくアットホームで、映画好きが自然と集まる場所。',
+    categories: ['creative'], intensity: 'yuru', vibe: 'cozy', size: 'small',
+    cost: 'low', vertical: false, activity: '月2回', members: '約25名',
+    tags: [{l:'映画',c:'tag-purple'},{l:'少人数',c:'tag-teal'},{l:'格安',c:'tag-gold'}],
+    instagram: '@cinema_waseda', photos: ['cinema1','cinema2','cinema3'],
+    scores: {sports:1,culture:6,tech:1,social:6,outdoor:1,creative:8,game:3}
+  },
+  {
+    id: 11, name: '写真サークル Lens', university: 'インカレ', inkare: true,
+    catchcopy: 'カメラ片手に街へ。感性を磨く写真集団',
+    desc: '複数大学合同の写真サークル。月1回の撮影会（テーマあり）と年2回の写真展が活動の柱。カメラはスマホでも参加可。SNSで作品を発信するメンバーも多く、フォロワーが増えると評判。',
+    categories: ['creative'], intensity: 'yuru', vibe: 'cool', size: 'medium',
+    cost: 'low', vertical: false, activity: '月2〜4回', members: '約70名',
+    tags: [{l:'写真',c:'tag-blue'},{l:'インカレ',c:'tag-pink'},{l:'SNS映え',c:'tag-purple'}],
+    instagram: '@lens_circle_jp', photos: ['photo1','photo2','photo3'],
+    scores: {sports:1,culture:4,tech:2,social:6,outdoor:5,creative:10,game:1}
+  },
+  {
+    id: 12, name: 'イラスト・漫画サークル Inkwell', university: 'MARCH', inkare: false,
+    catchcopy: '描くことが好きな人の安心できる場所',
+    desc: '中央大学公認のイラスト・漫画サークル。週1回の集まりで各自が制作。コミケや学祭での合同誌制作も。デジタル・アナログどちらも歓迎。内輪ノリが少なく入りやすいと好評。',
+    categories: ['creative'], intensity: 'yuru', vibe: 'cozy', size: 'small',
+    cost: 'low', vertical: false, activity: '週1', members: '約30名',
+    tags: [{l:'イラスト',c:'tag-purple'},{l:'マンガ',c:'tag-pink'},{l:'コミケ参加',c:'tag-gold'}],
+    instagram: '@inkwell_chuo', photos: ['art1','art2','art3'],
+    scores: {sports:1,culture:5,tech:2,social:5,outdoor:1,creative:10,game:4}
+  },
+  {
+    id: 13, name: 'プログラミングサークル DevHub', university: '早稲田大学', inkare: false,
+    catchcopy: 'アプリをつくって世界を変えよう',
+    desc: '開発・ハッカソン参加・LT会を定期開催する本格派テックサークル。企業連携のプロジェクトにも参加でき、就活で圧倒的に強い。Python・Web・アプリ・AIなど多分野をカバー。',
+    categories: ['tech'], intensity: 'gachi', vibe: 'cool', size: 'medium',
+    cost: 'low', vertical: false, activity: '週2〜3', members: '約80名',
+    tags: [{l:'プログラミング',c:'tag-blue'},{l:'ハッカソン',c:'tag-purple'},{l:'ガクチカ最強',c:'tag-gold'}],
+    instagram: '@devhub_waseda', photos: ['tech1','tech2','tech3'],
+    scores: {sports:1,culture:1,tech:10,social:4,outdoor:1,creative:4,game:5}
+  },
+  {
+    id: 14, name: 'ビジネス研究会 Next', university: '慶應義塾大学', inkare: false,
+    catchcopy: '起業・コンサル・投資を本気で学ぶ',
+    desc: '慶應生中心のビジネス特化サークル。ケーススタディ・ビジネスコンテスト出場・OB起業家との勉強会など、就活・起業に直結する活動が充実。意識高い系が集まるが、初心者も歓迎。',
+    categories: ['tech'], intensity: 'gachi', vibe: 'cool', size: 'medium',
+    cost: 'medium', vertical: false, activity: '週2〜3', members: '約90名',
+    tags: [{l:'ビジネス',c:'tag-gold'},{l:'コンテスト',c:'tag-blue'},{l:'意識高め',c:'tag-purple'}],
+    instagram: '@next_keio_biz', photos: ['biz1','biz2','biz3'],
+    scores: {sports:1,culture:1,tech:9,social:5,outdoor:1,creative:3,game:1}
+  },
+  {
+    id: 15, name: '広告研究会 AD Lab', university: 'MARCH', inkare: false,
+    catchcopy: '実際の広告案件に関わる実践型サークル',
+    desc: '法政大学公認。企業からの広告課題に取り組む実践型サークル。コピーライティング・デザイン・マーケティングを学べる。就活でのアピールポイントとして非常に強く、OBネットワークも豊富。',
+    categories: ['tech','creative'], intensity: 'middle', vibe: 'cool', size: 'medium',
+    cost: 'low', vertical: false, activity: '週2', members: '約55名',
+    tags: [{l:'広告・マーケ',c:'tag-gold'},{l:'企業連携',c:'tag-blue'},{l:'ガクチカ',c:'tag-purple'}],
+    instagram: '@adlab_hosei', photos: ['office1','office2','office3'],
+    scores: {sports:1,culture:3,tech:7,social:4,outdoor:1,creative:7,game:1}
+  },
+  {
+    id: 16, name: '語学・国際交流サークル Globe', university: '早稲田大学', inkare: true,
+    catchcopy: '外国人留学生と毎週交流。英語力がのびる',
+    desc: '早稲田の留学生と日本人学生が混合で活動するインカレ型サークル。週1回の交流イベント（英語ゲーム・料理・文化紹介など）が中心。英語が苦手でもOK、むしろ上達できる環境。',
+    categories: ['social'], intensity: 'yuru', vibe: 'bright', size: 'large',
+    cost: 'low', vertical: false, activity: '週1', members: '約100名',
+    tags: [{l:'国際交流',c:'tag-blue'},{l:'英語',c:'tag-teal'},{l:'留学生と交流',c:'tag-pink'}],
+    instagram: '@globe_waseda', photos: ['exchange1','exchange2','exchange3'],
+    scores: {sports:2,culture:3,tech:3,social:10,outdoor:2,creative:2,game:1}
+  },
+  {
+    id: 17, name: 'ボランティアサークル Roots', university: '早稲田大学', inkare: false,
+    catchcopy: '誰かの役に立つことが、自分の力になる',
+    desc: '子どもの学習支援・地域清掃・被災地支援など多様なボランティア活動を行うサークル。活動は選択式で無理なく参加できる。就活での自己アピールはもちろん、本当にやりがいを感じられる。',
+    categories: ['social'], intensity: 'yuru', vibe: 'cozy', size: 'medium',
+    cost: 'low', vertical: false, activity: '週1〜月2', members: '約70名',
+    tags: [{l:'ボランティア',c:'tag-teal'},{l:'自由参加',c:'tag-gold'},{l:'ガクチカ',c:'tag-blue'}],
+    instagram: '@roots_volunteer_ws', photos: ['volunteer1','volunteer2','volunteer3'],
+    scores: {sports:1,culture:1,tech:2,social:10,outdoor:3,creative:2,game:1}
+  },
+  {
+    id: 18, name: 'アウトドアサークル BASE', university: 'インカレ', inkare: true,
+    catchcopy: 'キャンプ・登山・BBQ。自然の中で仲良くなる',
+    desc: '複数大学合同のアウトドアサークル。月1〜2回のキャンプや登山、夏の海BBQ、冬のスキーなど年間イベントが充実。費用は割り勘で手頃。自然の中で仲良くなれる、出会いも多め。',
+    categories: ['outdoor'], intensity: 'yuru', vibe: 'bright', size: 'large',
+    cost: 'medium', vertical: false, activity: '月2回', members: '約120名',
+    tags: [{l:'キャンプ',c:'tag-teal'},{l:'登山',c:'tag-gold'},{l:'インカレ',c:'tag-pink'},{l:'出会い多め',c:'tag-blue'}],
+    instagram: '@base_outdoor_circle', photos: ['outdoor4','outdoor5','outdoor6'],
+    scores: {sports:4,culture:1,tech:1,social:8,outdoor:10,creative:1,game:1}
+  },
+  {
+    id: 19, name: '旅行サークル Journey', university: '早稲田大学', inkare: false,
+    catchcopy: '国内も海外も。旅好きが集まるゆるいサークル',
+    desc: '年2〜3回の国内旅行合宿と年1回の海外旅行（有志参加）が目玉。旅行の企画・手配をメンバーが担当するので段取り力もつく。旅行に行かない時期はゆるく飲み会・ランチ会。',
+    categories: ['outdoor','social'], intensity: 'yuru', vibe: 'bright', size: 'medium',
+    cost: 'medium', vertical: false, activity: '月1〜2回', members: '約65名',
+    tags: [{l:'旅行',c:'tag-gold'},{l:'国内・海外',c:'tag-teal'},{l:'ゆるめ',c:'tag-blue'}],
+    instagram: '@journey_waseda', photos: ['outdoor7','outdoor8','outdoor9'],
+    scores: {sports:2,culture:2,tech:1,social:8,outdoor:9,creative:1,game:1}
+  },
+  {
+    id: 20, name: 'カフェ巡りサークル Roast', university: 'インカレ', inkare: true,
+    catchcopy: '毎週違うカフェへ。それだけで友達ができる',
+    desc: '複数大学合同のゆるいライフスタイルサークル。毎週末に都内のおしゃれカフェやローカル喫茶をみんなで訪問。SNS映えを狙う写真も撮れる。新しいメンバーが毎月入るので友達が増えやすい。',
+    categories: ['social'], intensity: 'yuru', vibe: 'cozy', size: 'medium',
+    cost: 'low', vertical: false, activity: '週1', members: '約55名',
+    tags: [{l:'カフェ巡り',c:'tag-pink'},{l:'インカレ',c:'tag-teal'},{l:'SNS映え',c:'tag-purple'}],
+    instagram: '@roast_cafe_circle', photos: ['cafe1','cafe2','cafe3'],
+    scores: {sports:1,culture:2,tech:1,social:9,outdoor:4,creative:4,game:1}
+  },
+  {
+    id: 21, name: '料理サークル Kitchen+', university: 'MARCH', inkare: false,
+    catchcopy: 'みんなで作って食べるだけ。距離が縮まる',
+    desc: '青山学院大学の料理サークル。週1回、学内調理室でみんなで料理して食べるだけ。テーマは「日本料理」「イタリアン」「お菓子」など持ち回りで決める。自然と会話が生まれて仲良くなれる。',
+    categories: ['social'], intensity: 'yuru', vibe: 'cozy', size: 'small',
+    cost: 'low', vertical: false, activity: '週1', members: '約30名',
+    tags: [{l:'料理',c:'tag-gold'},{l:'少人数',c:'tag-teal'},{l:'格安',c:'tag-pink'}],
+    instagram: '@kitchenplus_aoyama', photos: ['food1','food2','food3'],
+    scores: {sports:1,culture:2,tech:1,social:9,outdoor:2,creative:3,game:1}
+  },
+  {
+    id: 22, name: 'BBQ・旅行イベントサークル LINK', university: 'インカレ', inkare: true,
+    catchcopy: '年間イベント多め。常に出会いがある場所',
+    desc: 'BBQ・花火・スキー・海など年間10以上のイベントを開催するインカレサークル。参加は基本自由で、気が向いたイベントだけ来るスタイル。メンバー入れ替わりが多く、常に新しい出会いがある。',
+    categories: ['social','outdoor'], intensity: 'yuru', vibe: 'bright', size: 'large',
+    cost: 'medium', vertical: false, activity: '月1〜2イベント', members: '約180名',
+    tags: [{l:'イベント中心',c:'tag-pink'},{l:'インカレ',c:'tag-teal'},{l:'出会い多め',c:'tag-gold'}],
+    instagram: '@link_events_circle', photos: ['party1','party2','party3'],
+    scores: {sports:3,culture:2,tech:1,social:10,outdoor:6,creative:1,game:1}
+  },
+  {
+    id: 23, name: 'ボードゲームサークル Tabletop', university: '早稲田大学', inkare: false,
+    catchcopy: '頭使う系エンタメが好きな人の居場所',
+    desc: '週1回、学内で人狼・カタン・ワードウルフなどボードゲームをやるだけのゆるいサークル。ゲーム系は好きだけどゲーセンや飲み会はちょっと…という人に人気。内輪感がなく入りやすい。',
+    categories: ['game'], intensity: 'yuru', vibe: 'cozy', size: 'small',
+    cost: 'low', vertical: false, activity: '週1', members: '約35名',
+    tags: [{l:'ボードゲーム',c:'tag-purple'},{l:'人狼',c:'tag-blue'},{l:'格安',c:'tag-gold'}],
+    instagram: '@tabletop_waseda', photos: ['board1','board2','board3'],
+    scores: {sports:1,culture:1,tech:4,social:7,outdoor:1,creative:2,game:10}
+  },
+  {
+    id: 24, name: 'eスポーツサークル GG', university: '慶應義塾大学', inkare: true,
+    catchcopy: 'VALORANT・LoL・Apex。ガチも歓迎',
+    desc: '慶應を中心としたeスポーツサークル。チーム制で大会参加する「競技班」と、わいわいやる「カジュアル班」に分かれているので、ゆるい人もガチな人も参加できる。',
+    categories: ['game','tech'], intensity: 'middle', vibe: 'cool', size: 'medium',
+    cost: 'low', vertical: false, activity: '週2〜3', members: '約70名',
+    tags: [{l:'eスポーツ',c:'tag-purple'},{l:'VALORANT',c:'tag-blue'},{l:'大会あり',c:'tag-pink'}],
+    instagram: '@gg_esports_keio', photos: ['game1','game2','game3'],
+    scores: {sports:3,culture:1,tech:7,social:5,outdoor:1,creative:2,game:10}
+  },
+  {
+    id: 25, name: 'ディベート研究会 Argue+', university: '国公立大学', inkare: false,
+    catchcopy: '論理的思考力を鍛えたいなら絶対ここ',
+    desc: '東大・一橋・東工大生中心のディベートサークル。週2回の練習と月1回の大会参加。英語ディベート・日本語ディベート双方対応。口下手でも論理力がつくと就活生からも人気。',
+    categories: ['tech','social'], intensity: 'gachi', vibe: 'cool', size: 'medium',
+    cost: 'low', vertical: false, activity: '週2', members: '約50名',
+    tags: [{l:'ディベート',c:'tag-gold'},{l:'論理思考',c:'tag-blue'},{l:'英語対応',c:'tag-teal'}],
+    instagram: '@argueplus_debate', photos: ['debate1','debate2','debate3'],
+    scores: {sports:1,culture:1,tech:8,social:6,outdoor:1,creative:3,game:1}
+  }
+];
+
+// picsum photo seeds mapping
+const PHOTO_BASE = 'https://picsum.photos/seed/';
+const PHOTO_MAP = {
+  tennis1:'smc_t1/400/400',tennis2:'smc_t2/200/200',tennis3:'smc_t3/200/200',
+  sport1:'smc_s1/400/400',sport2:'smc_s2/200/200',sport3:'smc_s3/200/200',
+  sport4:'smc_s4/400/400',sport5:'smc_s5/200/200',sport6:'smc_s6/200/200',
+  basketball1:'smc_b1/400/400',basketball2:'smc_b2/200/200',basketball3:'smc_b3/200/200',
+  outdoor1:'smc_o1/400/400',outdoor2:'smc_o2/200/200',outdoor3:'smc_o3/200/200',
+  outdoor4:'smc_o4/400/400',outdoor5:'smc_o5/200/200',outdoor6:'smc_o6/200/200',
+  outdoor7:'smc_o7/400/400',outdoor8:'smc_o8/200/200',outdoor9:'smc_o9/200/200',
+  dance1:'smc_d1/400/400',dance2:'smc_d2/200/200',dance3:'smc_d3/200/200',
+  music1:'smc_m1/400/400',music2:'smc_m2/200/200',music3:'smc_m3/200/200',
+  music4:'smc_m4/400/400',music5:'smc_m5/200/200',music6:'smc_m6/200/200',
+  theater1:'smc_th1/400/400',theater2:'smc_th2/200/200',theater3:'smc_th3/200/200',
+  cinema1:'smc_ci1/400/400',cinema2:'smc_ci2/200/200',cinema3:'smc_ci3/200/200',
+  photo1:'smc_ph1/400/400',photo2:'smc_ph2/200/200',photo3:'smc_ph3/200/200',
+  art1:'smc_ar1/400/400',art2:'smc_ar2/200/200',art3:'smc_ar3/200/200',
+  tech1:'smc_tc1/400/400',tech2:'smc_tc2/200/200',tech3:'smc_tc3/200/200',
+  biz1:'smc_bz1/400/400',biz2:'smc_bz2/200/200',biz3:'smc_bz3/200/200',
+  office1:'smc_of1/400/400',office2:'smc_of2/200/200',office3:'smc_of3/200/200',
+  exchange1:'smc_ex1/400/400',exchange2:'smc_ex2/200/200',exchange3:'smc_ex3/200/200',
+  volunteer1:'smc_vl1/400/400',volunteer2:'smc_vl2/200/200',volunteer3:'smc_vl3/200/200',
+  cafe1:'smc_cf1/400/400',cafe2:'smc_cf2/200/200',cafe3:'smc_cf3/200/200',
+  food1:'smc_fd1/400/400',food2:'smc_fd2/200/200',food3:'smc_fd3/200/200',
+  party1:'smc_py1/400/400',party2:'smc_py2/200/200',party3:'smc_py3/200/200',
+  board1:'smc_bg1/400/400',board2:'smc_bg2/200/200',board3:'smc_bg3/200/200',
+  game1:'smc_gm1/400/400',game2:'smc_gm2/200/200',game3:'smc_gm3/200/200',
+  debate1:'smc_db1/400/400',debate2:'smc_db2/200/200',debate3:'smc_db3/200/200',
+};
+function photoUrl(key) { return PHOTO_BASE + (PHOTO_MAP[key] || key+'/400/400'); }
+
+// ===== QUIZ STATE =====
+const answers = {};
+const selectedHobbies = new Set();
+const selectedCats = new Set();
+let currentQ = 0;
+const TOTAL_Q = 7;
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const nav = document.getElementById('bottom-nav');
+  nav.classList.toggle('visible', id !== 'screen-landing');
+  // update nav active
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if(id === 'screen-quiz' || id === 'screen-result') document.getElementById('nav-quiz').classList.add('active');
+  if(id === 'screen-browse') document.getElementById('nav-browse').classList.add('active');
+}
+
+function goHome() { showScreen('screen-landing'); }
+
+function startQuiz() {
+  resetQuiz();
+  showScreen('screen-quiz');
+}
+
+// ===== QUIZ LOGIC =====
+function selectOption(btn) {
+  btn.closest('.question-card').querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  answers[currentQ] = btn.dataset.value;
+  document.getElementById('btn-next').disabled = false;
+}
+
+function toggleHobby(btn) {
+  const label = btn.textContent.trim();
+  const cat = btn.dataset.cat;
+  if(btn.classList.contains('selected')) {
+    btn.classList.remove('selected');
+    selectedHobbies.delete(label);
+    // recheck if cat still has selections
+    const stillHas = [...document.querySelectorAll(`.hobby-tag.selected[data-cat="${cat}"]`)].length > 0;
+    if(!stillHas) selectedCats.delete(cat);
+  } else {
+    btn.classList.add('selected');
+    selectedHobbies.add(label);
+    selectedCats.add(cat);
+  }
+  updateHobbyCount();
+}
+
+function updateHobbyCount() {
+  const other = document.getElementById('hobby-other').value.trim();
+  const total = selectedHobbies.size + (other ? 1 : 0);
+  document.getElementById('hobby-count').textContent = total > 0 ? `${total}件選択中` : '';
+  if(currentQ === 2) document.getElementById('btn-next').disabled = total === 0;
+}
+
+function nextQuestion() {
+  if(currentQ === 2) {
+    const other = document.getElementById('hobby-other').value.trim();
+    const total = selectedHobbies.size + (other ? 1 : 0);
+    if(total === 0) return;
+    if(other) { selectedHobbies.add(other); selectedCats.add('other'); }
+    answers[2] = { hobbies: Array.from(selectedHobbies), cats: Array.from(selectedCats) };
+  }
+  if(answers[currentQ] === undefined && currentQ !== 2) return;
+  if(currentQ >= TOTAL_Q - 1) { showResult(); return; }
+
+  const cards = document.querySelectorAll('.question-card');
+  cards[currentQ].classList.remove('active');
+  currentQ++;
+  cards[currentQ].classList.add('active');
+  updateProgress();
+  document.getElementById('btn-back').disabled = false;
+  const isHobbyQ = currentQ === 2;
+  const alreadyAnswered = answers[currentQ] !== undefined;
+  document.getElementById('btn-next').disabled = isHobbyQ
+    ? (selectedHobbies.size === 0 && !document.getElementById('hobby-other').value.trim())
+    : !alreadyAnswered;
+  document.getElementById('btn-next').textContent = currentQ === TOTAL_Q - 1 ? '結果を見る' : '次へ';
+}
+
+function prevQuestion() {
+  if(currentQ === 0) return;
+  const cards = document.querySelectorAll('.question-card');
+  cards[currentQ].classList.remove('active');
+  currentQ--;
+  cards[currentQ].classList.add('active');
+  updateProgress();
+  document.getElementById('btn-back').disabled = currentQ === 0;
+  document.getElementById('btn-next').disabled = false;
+  document.getElementById('btn-next').textContent = '次へ';
+}
+
+function updateProgress() {
+  const pct = ((currentQ + 1) / TOTAL_Q * 100).toFixed(1);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = (currentQ + 1) + ' / ' + TOTAL_Q;
+}
+
+function resetQuiz() {
+  currentQ = 0;
+  Object.keys(answers).forEach(k => delete answers[k]);
+  selectedHobbies.clear(); selectedCats.clear();
+  document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelectorAll('.hobby-tag').forEach(b => b.classList.remove('selected'));
+  document.getElementById('hobby-other').value = '';
+  document.getElementById('hobby-count').textContent = '';
+  const cards = document.querySelectorAll('.question-card');
+  cards.forEach((c, i) => { c.classList.remove('active'); if(i===0) c.classList.add('active'); });
+  document.getElementById('btn-back').disabled = true;
+  document.getElementById('btn-next').disabled = true;
+  document.getElementById('btn-next').textContent = '次へ';
+  updateProgress();
+}
+
+// ===== MATCHING ALGORITHM =====
+function computeScore(circle) {
+  let score = 50;
+  const motivation = answers[3];
+  const intensity  = answers[4];
+  const avoid      = answers[5];
+  const vibe       = answers[6];
+  const univ       = answers[1];
+  const hobbyData  = answers[2] || { hobbies: [], cats: [] };
+  const cats       = hobbyData.cats || [];
+
+  // University match (+10 or -10)
+  if(univ === 'inkare' || circle.inkare) score += 5;
+  if(univ === 'waseda' && circle.university === '早稲田大学') score += 10;
+  if(univ === 'keio'   && circle.university === '慶應義塾大学') score += 10;
+  if(univ === 'march'  && circle.university === 'MARCH') score += 10;
+  if(univ === 'kokuritu' && circle.university === '国公立大学') score += 10;
+
+  // Hobby/category match (up to 30 pts)
+  let catScore = 0;
+  cats.forEach(cat => {
+    const dim = circle.scores[cat] || 0;
+    catScore += dim;
+  });
+  // normalize: max possible dim score is 10, count cats
+  const maxCatScore = cats.length * 10 || 1;
+  score += Math.round((catScore / maxCatScore) * 30);
+
+  // Motivation match (+15)
+  if(motivation === 'love') {
+    if(['sports','social','outdoor'].some(c => circle.categories.includes(c))) score += 12;
+    if(circle.vibe === 'bright') score += 8;
+    if(circle.size === 'large') score += 5;
+  }
+  if(motivation === 'friends') {
+    if(circle.vibe === 'cozy') score += 12;
+    if(['social','outdoor'].some(c => circle.categories.includes(c))) score += 8;
+  }
+  if(motivation === 'skill') {
+    if(['tech','creative'].some(c => circle.categories.includes(c))) score += 15;
+    if(circle.intensity === 'gachi' || circle.intensity === 'middle') score += 5;
+  }
+  if(motivation === 'enjoy') {
+    score += 8; // everyone gets a boost
+    if(circle.vibe === vibe) score += 5;
+  }
+
+  // Intensity match
+  if(intensity === circle.intensity) score += 15;
+  else if(intensity === 'gachi' && circle.intensity === 'yuru') score -= 15;
+  else if(intensity === 'yuru'  && circle.intensity === 'gachi') score -= 10;
+  else score += 5; // middle = partial match
+
+  // Avoid penalties
+  if(avoid === 'money' && circle.cost === 'high') score -= 20;
+  if(avoid === 'money' && circle.cost === 'low')  score += 8;
+  if(avoid === 'vertical' && circle.vertical) score -= 25;
+  if(avoid === 'vertical' && !circle.vertical) score += 5;
+  if(avoid === 'big' && circle.size === 'large') score -= 15;
+  if(avoid === 'big' && circle.size === 'small')  score += 10;
+
+  // Vibe match
+  if(vibe === circle.vibe) score += 10;
+  else score -= 3;
+
+  return Math.max(0, Math.min(99, score));
+}
+
+function getPersonaType(topCircles) {
+  const cats = (answers[2] || {cats:[]}).cats || [];
+  const motivation = answers[3];
+  const vibe = answers[6];
+  if(motivation === 'love' && vibe === 'bright') return '出会い全開タイプ';
+  if(motivation === 'skill') return '本気成長タイプ';
+  if(motivation === 'friends' && vibe === 'cozy') return '居場所重視タイプ';
+  if(cats.includes('tech')) return 'テック探求タイプ';
+  if(cats.includes('culture')) return '文化系クリエイタータイプ';
+  if(cats.includes('outdoor')) return 'アクティブ冒険タイプ';
+  if(cats.includes('game')) return 'ゲーム・エンタメタイプ';
+  return 'バランス充実タイプ';
+}
+
+function showResult() {
+  // score all circles
+  const scored = CIRCLES.map(c => ({ ...c, matchScore: computeScore(c) }));
+  scored.sort((a,b) => b.matchScore - a.matchScore);
+  const top5 = scored.slice(0, 5);
+  const topScore = top5[0].matchScore;
+
+  showScreen('screen-result');
+
+  document.getElementById('result-type').textContent = getPersonaType(top5);
+  document.getElementById('match-score-val').textContent = topScore;
+
+  // hobby badges
+  const hobbies = (answers[2] || {hobbies:[]}).hobbies || [];
+  document.getElementById('result-hobbies').innerHTML =
+    hobbies.slice(0,7).map(h => `<span class="result-hobby-tag">${h}</span>`).join('');
+
+  // circle cards
+  document.getElementById('circle-list').innerHTML =
+    top5.map((c, i) => renderCircleCard(c, i)).join('');
+}
+
+function rankLabel(i) { return ['1st','2nd','3rd','4th','5th'][i]; }
+function rankCls(i)   { return ['rank-1','rank-2','rank-3','rank-4','rank-5'][i]; }
+
+function renderCircleCard(c, i) {
+  const photos = c.photos;
+  const tagsHtml = c.tags.map(t => `<span class="tag ${t.c}">${t.l}</span>`).join('');
+  return `
+  <div class="circle-card" onclick="openModal(${c.id})">
+    <div class="circle-photos">
+      <div class="photo"><img src="${photoUrl(photos[0])}" loading="lazy" alt="${c.name}"></div>
+      <div class="photo"><img src="${photoUrl(photos[1])}" loading="lazy" alt=""></div>
+      <div class="photo"><img src="${photoUrl(photos[2])}" loading="lazy" alt=""></div>
+    </div>
+    <div class="circle-body">
+      <div class="circle-top">
+        <span class="circle-rank ${rankCls(i)}">${rankLabel(i)}</span>
+        <div>
+          <div class="circle-name">${c.name}</div>
+          <div class="circle-univ">${c.university}${c.inkare?' · インカレOK':''}</div>
+        </div>
+      </div>
+      <div class="circle-tags-row">${tagsHtml}</div>
+      <div class="circle-desc">${c.catchcopy}</div>
+      <div class="circle-match-row">
+        <div class="match-bar"><div class="match-bar-fill" style="width:${c.matchScore}%"></div></div>
+        <div class="match-pct">${c.matchScore}%</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function retryQuiz() { startQuiz(); }
+
+// ===== BROWSE =====
+let activeFilter = 'all';
+
+function showBrowse() {
+  showScreen('screen-browse');
+  renderBrowse();
+}
+
+function setFilter(chip) {
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+  activeFilter = chip.dataset.filter;
+  filterCircles();
+}
+
+function filterCircles() {
+  const q = document.getElementById('search-input').value.trim().toLowerCase();
+  const filtered = CIRCLES.filter(c => {
+    const matchFilter = activeFilter === 'all'
+      || c.categories.includes(activeFilter)
+      || (activeFilter === 'yuru' && c.intensity === 'yuru')
+      || (activeFilter === 'inkare' && c.inkare);
+    const matchSearch = !q
+      || c.name.toLowerCase().includes(q)
+      || c.catchcopy.toLowerCase().includes(q)
+      || c.desc.toLowerCase().includes(q)
+      || c.university.toLowerCase().includes(q)
+      || c.tags.some(t => t.l.toLowerCase().includes(q));
+    return matchFilter && matchSearch;
+  });
+  renderBrowse(filtered);
+}
+
+function renderBrowse(list) {
+  if(!list) list = CIRCLES;
+  document.getElementById('browse-count').textContent = `${list.length}件のサークル`;
+  if(list.length === 0) {
+    document.getElementById('browse-grid').innerHTML = `
+      <div class="no-results" style="grid-column:1/-1">
+        <div class="no-results-icon">🔍</div>
+        <div class="no-results-text">該当するサークルが見つかりませんでした</div>
+      </div>`;
+    return;
+  }
+  document.getElementById('browse-grid').innerHTML = list.map(c => `
+    <div class="browse-card" onclick="openModal(${c.id})">
+      <div class="browse-thumb"><img src="${photoUrl(c.photos[0])}" loading="lazy" alt="${c.name}"></div>
+      <div class="browse-body">
+        <div class="browse-name">${c.name}</div>
+        <div class="browse-univ">${c.university}${c.inkare?' · インカレOK':''}</div>
+        <div class="browse-tags">${c.tags.slice(0,3).map(t=>`<span class="tag ${t.c}">${t.l}</span>`).join('')}</div>
+        <div class="browse-desc">${c.catchcopy}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ===== MODAL =====
+function openModal(id) {
+  const c = CIRCLES.find(x => x.id === id);
+  if(!c) return;
+
+  const photos = c.photos;
+  document.getElementById('modal-photos').innerHTML = `
+    <div class="photo"><img src="${photoUrl(photos[0])}" loading="lazy" alt="${c.name}"></div>
+    <div class="photo"><img src="${photoUrl(photos[1])}" loading="lazy" alt=""></div>
+    <div class="photo"><img src="${photoUrl(photos[2])}" loading="lazy" alt=""></div>`;
+
+  document.getElementById('modal-name').textContent = c.name;
+  document.getElementById('modal-univ').textContent = c.university + (c.inkare ? ' · インカレOK' : '');
+  document.getElementById('modal-tags').innerHTML =
+    c.tags.map(t => `<span class="tag ${t.c}">${t.l}</span>`).join('');
+  document.getElementById('modal-desc').textContent = c.desc;
+  document.getElementById('modal-info-grid').innerHTML = `
+    <div class="modal-info-item"><div class="modal-info-label">活動頻度</div><div class="modal-info-value">${c.activity}</div></div>
+    <div class="modal-info-item"><div class="modal-info-label">メンバー数</div><div class="modal-info-value">${c.members}</div></div>
+    <div class="modal-info-item"><div class="modal-info-label">コスト感</div><div class="modal-info-value">${{low:'低め（格安）',medium:'中程度',high:'高め'}[c.cost]}</div></div>
+    <div class="modal-info-item"><div class="modal-info-label">ガチ度</div><div class="modal-info-value">${{gachi:'本気（週3以上）',middle:'ほどほど',yuru:'ゆるめ'}[c.intensity]}</div></div>`;
+  document.getElementById('modal-sns').innerHTML =
+    `<a class="sns-btn" href="https://instagram.com/${c.instagram.replace('@','')}" target="_blank">📸 ${c.instagram}</a>`;
+
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(e) {
+  if(e.target === document.getElementById('modal-overlay')) closeModalBtn();
+}
+function closeModalBtn() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+</script>
+</body>
+</html>
