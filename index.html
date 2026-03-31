@@ -788,23 +788,37 @@ function showResult() {
   const keys = hobbyData.keys || [];
   const cats = hobbyData.cats || [];
 
-  // ── 対象プールを先に絞る ──────────────────────────────────────
-  // 1st: genre_key が選択キーと完全一致するサークル
-  // 2nd: 足りなければ同カテゴリ（keys未指定カテゴリ）で補完
-  // 3rd: それでも足りなければ全件フォールバック
-  let pool = CIRCLES;
-  if (keys.length > 0) {
-    const exact = CIRCLES.filter(c => c.genre_key && keys.includes(c.genre_key));
-    if (exact.length >= 3) {
-      pool = exact;
-    } else {
-      // exact が足りない場合: 選択カテゴリ全体に広げる
-      const byCat = CIRCLES.filter(c => c.categories.some(cat => cats.includes(cat)));
-      pool = byCat.length >= 3 ? byCat : CIRCLES;
-    }
-  } else if (cats.length > 0) {
-    const byCat = CIRCLES.filter(c => c.categories.some(cat => cats.includes(cat)));
-    if (byCat.length >= 3) pool = byCat;
+  // ── 対象プールを先に絞る（ジャンル優先 → 大学 → 拡張）────────
+  const univ = answers[1];
+  const MARCH_UNIVS_P = ['明治大学','青山学院大学','立教大学','中央大学','法政大学','上智大学','東京理科大学'];
+  const KOKURITU_UNIVS_P = ['一橋大学','東京大学'];
+
+  function matchUniv(c) {
+    if (univ === 'waseda')   return c.university === '早稲田大学';
+    if (univ === 'keio')     return c.university === '慶應義塾大学';
+    if (univ === 'march')    return MARCH_UNIVS_P.includes(c.university);
+    if (univ === 'kokuritu') return KOKURITU_UNIVS_P.includes(c.university);
+    return true; // inkare / 大学問わず
+  }
+
+  // ジャンル一致サークル（全大学）
+  const byGenre = keys.length > 0
+    ? CIRCLES.filter(c => c.genre_key && keys.includes(c.genre_key))
+    : cats.length > 0
+      ? CIRCLES.filter(c => c.categories.some(cat => cats.includes(cat)))
+      : CIRCLES;
+
+  // ジャンル + 大学 の AND 絞り込み
+  const byGenreAndUniv = byGenre.filter(matchUniv);
+
+  let pool;
+  if (byGenreAndUniv.length >= 3) {
+    pool = byGenreAndUniv;                    // 理想: ジャンル&大学一致
+  } else if (byGenre.length >= 3) {
+    pool = byGenre;                           // 次善: ジャンルのみ（大学不問）
+  } else {
+    pool = CIRCLES.filter(matchUniv);         // 最後: 大学のみ（ジャンル不問）
+    if (pool.length < 3) pool = CIRCLES;      // 全件フォールバック
   }
   // ─────────────────────────────────────────────────────────────
 
